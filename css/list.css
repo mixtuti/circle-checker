@@ -241,3 +241,7 @@ dialog { border:none; padding:0; background:transparent }
 :root[data-theme="dark"] .circle-link {
   color: var(--link);
 }
+
+.actions-col{
+    flex-direction: row
+}
