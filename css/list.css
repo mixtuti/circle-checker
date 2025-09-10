@@ -113,3 +113,131 @@ dialog { border:none; padding:0; background:transparent }
   padding:0 !important;
   letter-spacing:normal;
 }
+
+/* =========================
+   Dark theme readability fix
+   ========================= */
+:root[data-theme="dark"] {
+  --bg: #0b0f14;
+  --card: #131922;
+  --fg: #e6eaf2;
+  --muted: #aab2c0;
+  --border: #2a3340;
+  --link: #7ab7ff;
+  --chip: #1a2330;
+}
+
+/* 共通カード/モーダル/ツールバーの色 */
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .modal,
+:root[data-theme="dark"] .toolbar {
+  background: var(--card);
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+/* 見出しやラベル、本文 */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] label,
+:root[data-theme="dark"] .meta,
+:root[data-theme="dark"] .name,
+:root[data-theme="dark"] .owner,
+:root[data-theme="dark"] .space,
+:root[data-theme="dark"] .help,
+:root[data-theme="dark"] .pv-grid,
+:root[data-theme="dark"] .list .row,
+:root[data-theme="dark"] #circleModal,
+:root[data-theme="dark"] #editModal {
+  color: var(--fg);
+}
+
+/* 入力系（文字色・背景・ボーダー） */
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  color: var(--fg);
+  background: #0f1722;
+  border-color: var(--border);
+}
+
+/* ボタン */
+:root[data-theme="dark"] .btn {
+  color: var(--fg);
+  background: #162131;
+  border-color: var(--border);
+}
+:root[data-theme="dark"] .btn:hover {
+  filter: brightness(1.08);
+}
+:root[data-theme="dark"] .btn.primary {
+  background: var(--link);
+  color: #fff;
+  border-color: transparent;
+}
+:root[data-theme="dark"] .btn.danger {
+  background: #c74848;
+  color: #fff;
+  border-color: transparent;
+}
+
+/* バッジ／チップ類（R18やタグ等） */
+:root[data-theme="dark"] .badge { 
+  background: #233044;
+  color: var(--fg);
+  border-color: var(--border);
+}
+:root[data-theme="dark"] .badge.r18 { 
+  background: #5a1f2a;
+  color: #ffd7df;
+}
+:root[data-theme="dark"] .evchips .evt {
+  background: var(--chip);
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+/* リンク／アイコン（Font Awesome は currentColor を使う） */
+:root[data-theme="dark"] a { color: var(--link); }
+:root[data-theme="dark"] .links a i,
+:root[data-theme="dark"] .ph i {
+  color: inherit;
+}
+
+/* リストビューのグリッド行 */
+:root[data-theme="dark"] .list .row.listrow {
+  color: var(--fg);
+  border-color: var(--border);
+  background: transparent;
+}
+
+/* モーダル内部（参加履歴 & 編集） */
+:root[data-theme="dark"] #circleModal .modal,
+:root[data-theme="dark"] #editModal .modal {
+  background: var(--card);
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+/* 参加履歴テーブル */
+:root[data-theme="dark"] #circleModal table {
+  color: var(--fg);
+  border-color: var(--border);
+}
+:root[data-theme="dark"] #circleModal th,
+:root[data-theme="dark"] #circleModal td {
+  border-color: var(--border);
+}
+
+/* アバター枠のプレースホルダ */
+:root[data-theme="dark"] .avatar .ph {
+  background: #0f1722;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+/* サークル名リンク風ボタン */
+:root[data-theme="dark"] .circle-link {
+  color: var(--link);
+}

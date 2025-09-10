@@ -414,6 +414,8 @@ function renderList(items, sel){
   wrap.className = 'list';
 
   const hasEventCol = sel.mode==='ALL' && !mergeDup;
+
+  // ヘッダ：最後の列見出しを「操作」に
   wrap.insertAdjacentHTML('beforeend', `
     <div class="row listrow head">
       <div></div>
@@ -422,22 +424,25 @@ function renderList(items, sel){
       <div>${hasEventCol?'代表者':'配置'}</div>
       <div>${hasEventCol?'配置':'リンク'}</div>
       <div>${hasEventCol?'リンク':''}</div>
-      <div></div>
+      <div class="actions-col">操作</div>
     </div>
   `);
 
   items.forEach(c => {
     const canEdit = !(sel.mode==='ALL' && mergeDup && c.type==='merged');
-    const actions = canEdit ? actionButtonsHTML(c.event, c.index) : '';
-    const doneToggle = (c.event!=null && c.index!=null && canEdit)
-      ? doneButtonHTML(c.event, c.index)
-      : '';
+    const actionsHTML = canEdit ? actionButtonsHTML(c.event, c.index) : '';
+    const doneToggle  = (c.event!=null && c.index!=null && canEdit) ? doneButtonHTML(c.event, c.index) : '';
 
     const space = [c.island,c.seat].filter(Boolean).join(' ') || '—';
-    const cells = sel.mode==='ALL' && !mergeDup
+
+    const leftCells = sel.mode==='ALL' && !mergeDup
       ? `
         <div class="name">
-          <strong>${escapeHtml(c.name || '')}</strong>
+          <strong>
+            <button class="circle-link" type="button" data-circle="${escapeAttr(c.name || '')}">
+              ${escapeHtml(c.name || '')}
+            </button>
+          </strong>
           ${flagsHTML(c)}
           ${c.tags && c.tags.length ? `<span class="badge">${escapeHtml(c.tags[0])}${c.tags.length>1?` 他${c.tags.length-1}`:''}</span>` : ''}
         </div>
@@ -448,24 +453,27 @@ function renderList(items, sel){
       `
       : `
         <div class="name">
-          <strong>${escapeHtml(c.name || '')}</strong>
+          <strong>
+            <button class="circle-link" type="button" data-circle="${escapeAttr(c.name || '')}">
+              ${escapeHtml(c.name || '')}
+            </button>
+          </strong>
           ${flagsHTML(c)}
           ${c.tags && c.tags.length ? `<span class="badge">${escapeHtml(c.tags[0])}${c.tags.length>1?` 他${c.tags.length-1}`:''}</span>` : ''}
         </div>
         <div class="owner">${escapeHtml(c.owner || '')}</div>
         <div class="space">${space}</div>
         <div class="links">${linksHTML(c.links)}</div>
-        <div></div>
       `;
 
     const row = document.createElement('div');
     row.className = 'row listrow';
     row.innerHTML = `
       ${avatarHTML(c)}
-      ${cells}
-      <div class="actions">
+      ${leftCells}
+      <div class="actions actions-col">
         ${doneToggle}
-        ${actions}
+        ${actionsHTML}
       </div>
     `;
     wrap.appendChild(row);
@@ -474,6 +482,7 @@ function renderList(items, sel){
   $mount.innerHTML = '';
   $mount.appendChild(wrap);
 }
+
 
 function actionButtonsHTML(eventName, index){
   if (!eventName || index===undefined) return '';
