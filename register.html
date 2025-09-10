@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>サークル登録</title>
+
+  <!-- ページ専用CSS（分離） -->
+  <link rel="stylesheet" href="css/register.css" />
+
+  <!-- Font Awesome（アイコン用 / 必要なら任意のCDNに変更可） -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>サークル登録</h1>
+    <p class="help">※データはブラウザの <code>localStorage</code> に保存されます（GitHub Pages対応）</p>
+
+    <form id="circleForm" class="card" novalidate>
+      <!-- イベント -->
+      <label for="event">イベント名 <span class="help">（例: コミケ98 / 例大祭17）</span></label>
+      <input type="text" id="event" list="eventList" placeholder="イベント名を入力" required />
+      <datalist id="eventList"></datalist>
+
+      <hr>
+
+      <!-- ① アイコン（丸型） -->
+      <fieldset class="avatar-field">
+        <legend>アイコン</legend>
+
+        <div class="avatar large" id="avatarPreview">
+            <div class="ph"><i class="fa-regular fa-image"></i></div>
+        </div>
+
+        <div class="avatar-ops">
+            <div class="row">
+            <label class="small">ファイルから
+                <input type="file" id="avatarFile" accept="image/*">
+            </label>
+            </div>
+            <div class="row">
+            <label class="small" style="width:100%">画像URLから
+                <input type="url" id="avatarUrl" placeholder="https://example.com/icon.png">
+            </label>
+            </div>
+            <label class="small"><input type="checkbox" id="avatarClear"> 画像をクリア</label>
+            <p class="help">URLが入力されている場合はURLを優先します。クリアにチェックで未設定にします。</p>
+        </div>
+    </fieldset>
+
+      <div class="row" style="margin-top:12px">
+        <!-- ② サークル名 -->
+        <div>
+          <label for="circleName">サークル名</label>
+          <input type="text" id="circleName" placeholder="サークル名" required />
+        </div>
+        <!-- ③ 代表者 -->
+        <div>
+          <label for="owner">サークル代表者</label>
+          <input type="text" id="owner" placeholder="代表者名（任意）" />
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- ④ SNS（複数） -->
+      <label>SNS / Webリンク <span class="help">（複数追加できます）</span></label>
+      <div id="snsList" class="sns-list" aria-live="polite"></div>
+      <div class="flex">
+        <button type="button" class="btn" id="addSns">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> 行を追加
+        </button>
+        <span class="help">Twitter/X, pixiv, Booth, Fanbox, YouTube, Instagram, GitHub など</span>
+      </div>
+
+      <hr>
+
+      <!-- ⑤ ⑥ 配置 -->
+      <div class="row-2-1">
+        <div>
+          <label for="island">島の配置 <span class="help">（例: A / B / C / あ / い）</span></label>
+          <input type="text" id="island" placeholder="例: A または あ" inputmode="text" />
+        </div>
+        <div>
+          <label for="seat">席の配置 <span class="help">（例: 16a / 23b）</span></label>
+          <input type="text" id="seat" placeholder="例: 16a" inputmode="text" />
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- ⑦ タグ（複数） -->
+      <label for="tagInput">タグ（ジャンルなど・複数）</label>
+      <div id="tags" class="tags-input">
+        <input id="tagInput" type="text" placeholder="Enter または , で追加" />
+      </div>
+
+      <hr>
+
+      <!-- ⑧ / ⑨ チェック -->
+      <div class="flex">
+        <label class="flex">
+          <input type="checkbox" id="hasR18" />
+          R18の取り扱いあり
+        </label>
+        <label class="flex">
+          <input type="checkbox" id="favorite" />
+          推しサークルに登録
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="reset" class="btn">クリア</button>
+        <button type="submit" class="btn primary">登録</button>
+      </div>
+    </form>
+
+    <p class="help" style="margin-top:10px">
+      <span class="badge">保存先: localStorage（キー: <code>cc.events.v1</code>）</span>
+      <a href="index.html" style="margin-left:8px">→ 登録済みサークル一覧へ</a>
+    </p>
+  </div>
+
+  <!-- 画面制御（機能ごとに分割したES Modules） -->
+  <script type="module" src="js/register.js"></script>
+</body>
+</html>

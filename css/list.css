@@ -1,0 +1,115 @@
+:root { color-scheme: light dark; --bg:#fff; --fg:#111; --muted:#64748b; --border:#e5e7eb; --accent:#4f46e5; --card:#fff; }
+html[data-theme="dark"] { --bg:#0b0f14; --fg:#e6e8eb; --muted:#94a3b8; --border:#1f2937; --accent:#8b5cf6; --card:#11161d; }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif}
+.wrap{max-width:90%;margin:0 auto;padding:16px}
+h1{margin:8px 0 16px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+.help{color:var(--muted);font-size:.9rem}
+
+.toolbar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.field label{display:block;margin:0 0 6px;color:var(--muted);font-size:.9rem}
+select, input[type="search"]{
+  padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg);color:var(--fg);width:100%;
+}
+.row{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
+.switch input{margin-right:6px}
+.grow{flex:1 1 320px}
+.view-toggle{display:flex;gap:8px;margin-left:auto}
+.btn{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--fg);cursor:pointer}
+.btn.small{padding:6px 8px;border-radius:8px;font-size:.9rem}
+.btn.icon{padding:6px 8px}
+.btn.active{background:var(--accent);color:#fff;border-color:transparent}
+
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--border);border-radius:999px;font-size:.85rem}
+.badge.r18{border-color:#ef4444}
+.star{color:#f5c542}
+
+/* 共通 */
+.avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;border:1px solid var(--border);background:#ddd;flex:0 0 auto}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar .ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#999}
+
+/* イベントチップ */
+.evchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.evt{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--border);border-radius:999px;padding:2px 8px;font-size:.8rem}
+.evt .space{opacity:.9}
+
+/* カードビュー */
+.grid{display:grid;gap:12px;margin-top:12px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.card-item{display:grid;grid-template-columns:60px 1fr auto;gap:12px;padding:12px}
+.card-item .meta{color:var(--muted);font-size:.9rem}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{border:1px solid var(--border);border-radius:999px;padding:2px 8px;font-size:.8rem}
+.actions{display:flex;gap:6px;align-items:center}
+
+/* リストビュー */
+.list{margin-top:12px}
+.row.listrow{display:grid;grid-template-columns:56px 1.4fr 1fr 1.2fr 1.1fr auto;gap:10px;align-items:center;border-bottom:1px solid var(--border);padding:8px 4px}
+.head{color:var(--muted);font-weight:600}
+.name{display:flex;align-items:center;gap:6px}
+.links a{color:inherit;text-decoration:none;margin-right:8px}
+.links i.fa-fw{width:1.1em;text-align:center}
+
+/* モーダル（前回のまま） */
+dialog::backdrop { background: rgba(0,0,0,.35) }
+dialog { border:none; padding:0; background:transparent }
+.modal { width:min(720px, 96vw); }
+.modal h3 { margin:6px 0 10px }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px }
+.modal input[type="text"], .modal textarea {
+  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+  background:var(--bg); color:var(--fg);
+}
+.modal textarea { resize:vertical }
+.flags { display:flex; gap:12px; margin-top:8px }
+.avatar-field { border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px }
+.avatar-ops { display:flex; gap:12px; align-items:center; margin-top:8px }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px }
+
+/* ===== サークル詳細モーダル ===== */
+.circle-modal { position: relative; width:min(920px,96vw); }
+.circle-modal .close { position:absolute; top:10px; right:10px; }
+.cm-header { display:flex; gap:16px; align-items:center; }
+.avatar.large{ width:96px; height:96px; border-radius:50%; overflow:hidden; border:1px solid var(--border); background:#ddd; flex:0 0 auto }
+.cm-title h2{ margin:0; font-size:1.6rem }
+.cm-badges{ display:flex; gap:8px; align-items:center; margin:6px 0 }
+.cm-tabs{ margin-top:12px }
+.cm-body{ margin-top:8px }
+.cm-table{ width:100%; border-collapse:collapse; }
+.cm-table thead th{
+  text-align:left; font-weight:600; color:var(--muted);
+  border-bottom:1px solid var(--border); padding:8px 6px;
+}
+.cm-table td{ border-bottom:1px solid var(--border); padding:10px 6px; vertical-align:top }
+
+.circle-link{
+  background:none; border:none; padding:0;
+  color:var(--accent); cursor:pointer; text-decoration:underline;
+  font:inherit;
+}
+
+/* カード内：サークル名行の先頭余白を完全に消す */
+.card-item .body .name{
+  display:flex;
+  align-items:center;
+  gap:6px;              /* 名称とバッジ間の間隔だけ残す */
+  padding-left:0 !important;
+  margin-left:0 !important;
+  text-indent:0 !important;
+}
+
+/* クリック可能なサークル名のリセット（a でも button でもOK） */
+.card-item .body .name .circle-link{
+  all:unset;            /* 既定の余白/ボーダー等を全解除 */
+  cursor:pointer;
+  color:var(--accent);
+  text-decoration:underline;
+  line-height:1.2;
+  margin:0 !important;
+  padding:0 !important;
+  letter-spacing:normal;
+}

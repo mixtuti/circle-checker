@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>サークル一覧</title>
+
+  <link rel="stylesheet" href="css/list.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>サークル一覧</h1>
+
+    <div class="toolbar card">
+      <div class="field">
+        <label for="eventSelect">イベント</label>
+        <select id="eventSelect"></select>
+      </div>
+
+      <div class="field grow">
+        <label for="q">検索</label>
+        <input id="q" type="search" placeholder="サークル名・代表者・配置・タグ・リンクで検索">
+      </div>
+
+      <div class="field">
+        <label for="sortBy">並び替え</label>
+        <select id="sortBy">
+          <option value="space">配置順</option>
+          <option value="name">名前順</option>
+          <option value="favorite">推し優先</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mergeDup">重複まとめ</label>
+        <div class="row">
+          <label class="switch">
+            <input type="checkbox" id="mergeDup" checked>
+            <span>同名サークルをまとめる</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="view-toggle" role="tablist" aria-label="表示切替">
+        <button id="btnCard" class="btn" role="tab" aria-selected="true">
+          <i class="fa-solid fa-grid-2"></i> カード
+        </button>
+        <button id="btnList" class="btn" role="tab" aria-selected="false">
+          <i class="fa-solid fa-list"></i> リスト
+        </button>
+      </div>
+
+      <!-- 共有（出力／読み込み） -->
+        <div class="field">
+        <label>データ共有</label>
+            <div class="row">
+                <button class="btn" id="btnExport"><i class="fa-solid fa-file-export"></i> 出力</button>
+                <label class="btn" for="fileImport" style="cursor:pointer">
+                <i class="fa-solid fa-file-import"></i> 読み込み
+                <input type="file" id="fileImport" accept="application/json" hidden>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="mount"></div>
+
+    <p class="help" style="margin-top:12px">
+      <a href="register.html">→ 新規登録はこちら</a><br>
+      <a href="event.html">→ イベント情報の編集</a>
+    </p>
+  </div>
+
+  <!-- 編集モーダル -->
+  <dialog id="editModal">
+    <form method="dialog" class="modal card" id="editForm">
+      <h3>サークル編集</h3>
+      <input type="hidden" id="editIndex">
+      <div class="grid2">
+        <label>サークル名<input type="text" id="editName" required></label>
+        <label>代表者<input type="text" id="editOwner"></label>
+      </div>
+      <div class="grid2">
+        <label>島の配置<input type="text" id="editIsland" placeholder="A / あ など"></label>
+        <label>席の配置<input type="text" id="editSeat" placeholder="16a など"></label>
+      </div>
+      <label>タグ（カンマ区切り）<input type="text" id="editTags" placeholder="例: 東方, イラスト"></label>
+      <label>リンク（1行1URL）<textarea id="editLinks" rows="4" placeholder="https://..."></textarea></label>
+      <div class="flags">
+        <label><input type="checkbox" id="editR18"> R18あり</label>
+        <label><input type="checkbox" id="editFav"> 推し</label>
+      </div>
+      <fieldset class="avatar-field">
+        <legend>アイコン</legend>
+        <div class="avatar large" id="editAvatarPreview">
+            <div class="ph"><i class="fa-regular fa-image"></i></div>
+        </div>
+        <div class="avatar-ops">
+            <input type="file" id="editAvatar" accept="image/*">
+            <label class="small"><input type="checkbox" id="editAvatarClear"> 画像をクリア</label>
+
+            <!-- ★ 追加：画像URL -->
+            <div class="row" style="margin-top:6px">
+            <label class="small" style="width:100%">
+                画像URL
+                <input type="url" id="editAvatarUrl" placeholder="https://example.com/icon.png">
+            </label>
+            </div>
+        </div>
+    </fieldset>
+
+      <div class="modal-actions">
+        <button class="btn" value="cancel">キャンセル</button>
+        <button class="btn primary" id="editSave" value="default">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="circleModal">
+    <div class="modal card circle-modal">
+        <button class="btn small icon close" id="cmClose" aria-label="閉じる">
+        <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="cm-header">
+        <div class="avatar large" id="cmAvatar"><div class="ph"><i class="fa-regular fa-image"></i></div></div>
+        <div class="cm-title">
+            <h2 id="cmName">-</h2>
+            <div id="cmBadges" class="cm-badges"></div>
+            <div class="links" id="cmLinks"></div>
+        </div>
+        </div>
+
+        <div class="cm-tabs">
+        <button class="btn small active" disabled>
+            <i class="fa-regular fa-clock"></i> 参加履歴
+        </button>
+        <!-- 将来: タイムラインなど -->
+        </div>
+
+        <div class="cm-body">
+        <table class="cm-table">
+            <thead>
+            <tr><th>イベント</th><th>サークル名</th><th>代表者</th><th>配置</th></tr>
+            </thead>
+            <tbody id="cmRows"></tbody>
+        </table>
+        </div>
+    </div>
+    </dialog>
+
+  <script type="module" src="js/list.js"></script>
+</body>
+</html>
