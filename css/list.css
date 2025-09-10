@@ -44,7 +44,7 @@ select, input[type="search"]{
 .card-item .meta{color:var(--muted);font-size:.9rem}
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .tag{border:1px solid var(--border);border-radius:999px;padding:2px 8px;font-size:.8rem}
-.actions{display:flex;gap:6px;align-items:center}
+.actions{display:flex;gap:6px;align-items:center;flex-direction: column}
 
 /* リストビュー */
 .list{margin-top:12px}
