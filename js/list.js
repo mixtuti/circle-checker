@@ -2,7 +2,7 @@ import {
   loadEvents, updateCircleByIndex, deleteCircleByIndex, importEvents
 } from './storage.js';
 import { iconClassFor } from './icons.js';
-import { applyAutoTheme } from './theme.js';
+// import { applyAutoTheme } from './theme.js';
 
 applyAutoTheme();
 
@@ -686,3 +686,4 @@ async function onImportJSON(e){
     console.error(err); alert('読み込みに失敗しました');
   } finally { e.target.value = ''; }
 }
+
