@@ -1,4 +1,4 @@
-// 自動（OS+時間帯）でライト/ダーク切替
+// 自動（OS+時間帯）でライト/ダークモード切替
 export function applyAutoTheme() {
   const prefersDark = window.matchMedia &&
     window.matchMedia('(prefers-color-scheme: dark)').matches;

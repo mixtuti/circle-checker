@@ -30,7 +30,7 @@ const $pvSNS = document.getElementById('pvSNS');
 
 init();
 
-function init(){
+function init() {
   // イベント選択リスト
   refreshEventSelect();
   if ($eventSelect.options.length > 0) {
@@ -47,10 +47,10 @@ function init(){
   $addSns.addEventListener('click', () => addSnsRow());
 }
 
-function refreshEventSelect(selected){
+function refreshEventSelect(selected) {
   const names = listEvents();
   $eventSelect.innerHTML = '';
-  names.forEach((n,i) => {
+  names.forEach((n, i) => {
     const opt = document.createElement('option');
     opt.value = n; opt.textContent = n;
     $eventSelect.appendChild(opt);
@@ -60,7 +60,7 @@ function refreshEventSelect(selected){
   }
 }
 
-function onCreate(){
+function onCreate() {
   const name = $newEventName.value.trim();
   if (!name) { alert('イベント名を入力してください'); return; }
   ensureEvent(name);
@@ -70,7 +70,7 @@ function onCreate(){
   updateListLink(name);
 }
 
-function onRename(){
+function onRename() {
   const oldName = $eventSelect.value;
   const nn = $renameTo.value.trim();
   if (!nn) { alert('新しいイベント名を入力してください'); return; }
@@ -84,27 +84,27 @@ function onRename(){
   updateListLink(nn);
 }
 
-function onDelete(){
+function onDelete() {
   const name = $eventSelect.value;
   if (!name) return;
   if (!confirm(`イベント「${name}」を削除しますか？（サークル情報も含めて削除されます）`)) return;
   deleteEvent(name);
   refreshEventSelect();
-//   if ($eventSelect.options.length > 0) {
-//     $eventSelect.value = $eventSelect.options[0].value;
-//     loadToForm();
-//   } else {
-//     clearForm();
-//     renderPreview(null);
-//   }
-    if ($eventSelect.options.length > 0) {
-        updateListLink($eventSelect.value);
-    } else {
-        updateListLink('');
-    }
+  //   if ($eventSelect.options.length > 0) {
+  //     $eventSelect.value = $eventSelect.options[0].value;
+  //     loadToForm();
+  //   } else {
+  //     clearForm();
+  //     renderPreview(null);
+  //   }
+  if ($eventSelect.options.length > 0) {
+    updateListLink($eventSelect.value);
+  } else {
+    updateListLink('');
+  }
 }
 
-function clearForm(){
+function clearForm() {
   $date.value = '';
   $venue.value = '';
   $officialUrl.value = '';
@@ -112,10 +112,10 @@ function clearForm(){
   $snsList.innerHTML = '';
 }
 
-function loadToForm(){
+function loadToForm() {
   const name = $eventSelect.value;
   const ev = getEventByName(name) || ensureEvent(name);
-  const meta = ev.meta || { date:'', venue:'', officialUrl:'', mapUrl:'', sns:[] };
+  const meta = ev.meta || { date: '', venue: '', officialUrl: '', mapUrl: '', sns: [] };
 
   $date.value = meta.date || '';
   $venue.value = meta.venue || '';
@@ -149,7 +149,7 @@ $metaForm.addEventListener('submit', (e) => {
 });
 
 /* ---- SNS UI ---- */
-function addSnsRow(defaultUrl=''){
+function addSnsRow(defaultUrl = '') {
   const row = document.createElement('div');
   row.className = 'sns-item';
   row.innerHTML = `
@@ -165,13 +165,13 @@ function addSnsRow(defaultUrl=''){
   $del.addEventListener('click', () => row.remove());
   $snsList.appendChild(row);
 }
-function collectSNS(){
+function collectSNS() {
   return [...$snsList.querySelectorAll('input[type="url"]')]
     .map(i => i.value.trim()).filter(Boolean);
 }
 
 /* ---- プレビュー ---- */
-function renderPreview(ev){
+function renderPreview(ev) {
   if (!ev) { $previewCard.hidden = true; return; }
   $previewCard.hidden = false;
   const { name, meta } = ev;
@@ -194,7 +194,7 @@ function renderPreview(ev){
   }
 }
 
-function updateListLink(name){
+function updateListLink(name) {
   const a = document.getElementById('pvListLink');
   if (!a) return;
   if (name && name.trim()) {

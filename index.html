@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ja" data-theme="light">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="css/list.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
 </head>
+
 <body>
   <div class="wrap">
     <h1>サークル一覧</h1>
@@ -52,38 +54,45 @@
       </div>
 
       <!-- 共有（出力／読み込み） -->
-        <div class="field">
+      <div class="field">
         <label>データ共有</label>
-            <div class="row">
-                <button class="btn" id="btnExport"><i class="fa-solid fa-file-export"></i> 出力</button>
-                <label class="btn" for="fileImport" style="cursor:pointer">
-                <i class="fa-solid fa-file-import"></i> 読み込み
-                <input type="file" id="fileImport" accept="application/json" hidden>
-                </label>
-            </div>
-        </div><br>
-
-        <div class="field">
-            <label for="hideDone">表示</label>
-            <div class="row">
-                <label class="switch">
-                <input type="checkbox" id="hideDone" checked>
-                <span>購入済みは非表示</span>
-                </label>
-            </div>
+        <div class="row">
+          <button class="btn" id="btnExport"><i class="fa-solid fa-file-export"></i> 出力</button>
+          <label class="btn" for="fileImport" style="cursor:pointer">
+            <i class="fa-solid fa-file-import"></i> 読み込み
+            <input type="file" id="fileImport" accept="application/json" hidden>
+          </label>
         </div>
+      </div><br>
 
-        <div class="field">
-  <label>&nbsp;</label>
-  <button class="btn" id="clearDone">完了フラグを全解除</button>
-</div>
+      <div class="field">
+        <label for="hideDone">表示</label>
+        <div class="row">
+          <label class="switch">
+            <input type="checkbox" id="hideDone" checked>
+            <span>購入済みは非表示</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn" id="clearDone">完了フラグを全解除</button>
+      </div>
+
+      <p class="help" style="margin-top:12px">
+        <a href="register.html">→ 新規登録はこちら</a>&nbsp;
+        <a href="event.html">→ イベント情報の編集</a>&nbsp;
+        <a href="circle-master.html">→ サークルマスターへ</a>
+      </p>
     </div>
 
     <div id="mount"></div>
 
     <p class="help" style="margin-top:12px">
       <a href="register.html">→ 新規登録はこちら</a><br>
-      <a href="event.html">→ イベント情報の編集</a>
+      <a href="event.html">→ イベント情報の編集</a><br>
+      <a href="circle-master.html">→ サークルマスターへ</a>
     </p>
   </div>
 
@@ -109,21 +118,23 @@
       <fieldset class="avatar-field">
         <legend>アイコン</legend>
         <div class="avatar large" id="editAvatarPreview">
-            <div class="ph"><i class="fa-regular fa-image"></i></div>
+          <div class="ph">
+            <i class="fa-regular fa-image"></i>
+          </div>
         </div>
         <div class="avatar-ops">
-            <input type="file" id="editAvatar" accept="image/*">
-            <label class="small"><input type="checkbox" id="editAvatarClear"> 画像をクリア</label>
+          <input type="file" id="editAvatar" accept="image/*">
+          <label class="small"><input type="checkbox" id="editAvatarClear"> 画像をクリア</label>
 
-            <!-- ★ 追加：画像URL -->
-            <div class="row" style="margin-top:6px">
+          <!-- 画像URL -->
+          <div class="row" style="margin-top:6px">
             <label class="small" style="width:100%">
-                画像URL
-                <input type="url" id="editAvatarUrl" placeholder="https://example.com/icon.png">
+              画像URL
+              <input type="url" id="editAvatarUrl" placeholder="https://example.com/icon.png">
             </label>
-            </div>
+          </div>
         </div>
-    </fieldset>
+      </fieldset>
 
       <div class="modal-actions">
         <button class="btn" value="cancel">キャンセル</button>
@@ -134,37 +145,47 @@
 
   <dialog id="circleModal">
     <div class="modal card circle-modal">
-        <button class="btn small icon close" id="cmClose" aria-label="閉じる">
+      <button class="btn small icon close" id="cmClose" aria-label="閉じる">
         <i class="fa-solid fa-xmark"></i>
-        </button>
+      </button>
 
-        <div class="cm-header">
-        <div class="avatar large" id="cmAvatar"><div class="ph"><i class="fa-regular fa-image"></i></div></div>
+      <div class="cm-header">
+        <div class="avatar large" id="cmAvatar">
+          <div class="ph">
+            <i class="fa-regular fa-image"></i>
+          </div>
+        </div>
         <div class="cm-title">
-            <h2 id="cmName">-</h2>
-            <div id="cmBadges" class="cm-badges"></div>
-            <div class="links" id="cmLinks"></div>
+          <h2 id="cmName">-</h2>
+          <div id="cmBadges" class="cm-badges"></div>
+          <div class="links" id="cmLinks"></div>
         </div>
-        </div>
+      </div>
 
-        <div class="cm-tabs">
+      <div class="cm-tabs">
         <button class="btn small active" disabled>
-            <i class="fa-regular fa-clock"></i> 参加履歴
+          <i class="fa-regular fa-clock"></i> 参加履歴
         </button>
-        <!-- 将来: タイムラインなど -->
-        </div>
+        <!-- タイムラインなど -->
+      </div>
 
-        <div class="cm-body">
+      <div class="cm-body">
         <table class="cm-table">
-            <thead>
-            <tr><th>イベント</th><th>サークル名</th><th>代表者</th><th>配置</th></tr>
-            </thead>
-            <tbody id="cmRows"></tbody>
+          <thead>
+            <tr>
+              <th>イベント</th>
+              <th>サークル名</th>
+              <th>代表者</th>
+              <th>配置</th>
+            </tr>
+          </thead>
+          <tbody id="cmRows"></tbody>
         </table>
-        </div>
+      </div>
     </div>
-    </dialog>
+  </dialog>
 
   <script type="module" src="js/list.js"></script>
 </body>
+
 </html>

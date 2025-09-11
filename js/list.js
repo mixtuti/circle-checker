@@ -18,13 +18,13 @@ const $mergeDup = document.getElementById('mergeDup');
 const $hideDone = document.getElementById('hideDone');
 const $clearDone = document.getElementById('clearDone');
 
-const VIEW_KEY  = 'cc.viewMode';
-const SORT_KEY  = 'cc.sortBy';
-const Q_KEY     = 'cc.query';
-const EV_KEY    = 'cc.event';
+const VIEW_KEY = 'cc.viewMode';
+const SORT_KEY = 'cc.sortBy';
+const Q_KEY = 'cc.query';
+const EV_KEY = 'cc.event';
 const MERGE_KEY = 'cc.mergeAll';
-const HIDE_FLG  = 'cc.hideDoneFlag';
-const DONE_KEY  = 'cc.done.v1'; // { [eventName]: number[] }
+const HIDE_FLG = 'cc.hideDoneFlag';
+const DONE_KEY = 'cc.done.v1'; // { [eventName]: number[] }
 
 const $btnExport = document.getElementById('btnExport');
 const $fileImport = document.getElementById('fileImport');
@@ -34,7 +34,7 @@ $fileImport?.addEventListener('change', onImportJSON);
 
 let viewMode = localStorage.getItem(VIEW_KEY) || 'card';
 let sortMode = localStorage.getItem(SORT_KEY) || 'space';
-let query    = localStorage.getItem(Q_KEY) || '';
+let query = localStorage.getItem(Q_KEY) || '';
 let mergeDup = localStorage.getItem(MERGE_KEY);
 mergeDup = mergeDup === null ? true : mergeDup === 'true';
 let hideDone = (localStorage.getItem(HIDE_FLG) ?? 'true') === 'true';
@@ -42,33 +42,33 @@ let hideDone = (localStorage.getItem(HIDE_FLG) ?? 'true') === 'true';
 let all = loadEvents();
 
 /* ===== done 永続化 ===== */
-function loadDoneMap(){
+function loadDoneMap() {
   try { return JSON.parse(localStorage.getItem(DONE_KEY)) || {}; }
   catch { return {}; }
 }
-function saveDoneMap(map){
+function saveDoneMap(map) {
   localStorage.setItem(DONE_KEY, JSON.stringify(map));
 }
-function isDone(eventName, index){
+function isDone(eventName, index) {
   const map = loadDoneMap();
   const arr = map[eventName] || [];
   return arr.includes(index);
 }
-function markDone(eventName, index){
+function markDone(eventName, index) {
   const map = loadDoneMap();
   const arr = new Set(map[eventName] || []);
   arr.add(index);
   map[eventName] = [...arr];
   saveDoneMap(map);
 }
-function undoDone(eventName, index){
+function undoDone(eventName, index) {
   const map = loadDoneMap();
   const arr = new Set(map[eventName] || []);
   arr.delete(index);
   map[eventName] = [...arr];
   saveDoneMap(map);
 }
-function clearDoneAll(){
+function clearDoneAll() {
   saveDoneMap({});
 }
 
@@ -86,7 +86,7 @@ function updateURLForEvent(name) {
 }
 
 /* ===== 表示切替ボタンの同期 ===== */
-function syncViewButtons(){
+function syncViewButtons() {
   const isCard = viewMode === 'card';
   $btnCard.classList.toggle('active', isCard);
   $btnList.classList.toggle('active', !isCard);
@@ -95,7 +95,7 @@ function syncViewButtons(){
 }
 
 /* ===== 初期化：イベント選択 ===== */
-(function initSelect(){
+(function initSelect() {
   $eventSelect.innerHTML = '';
   const optAll = document.createElement('option');
   optAll.value = '__ALL__'; optAll.textContent = 'ALL（全イベント）';
@@ -123,7 +123,7 @@ function syncViewButtons(){
   }
   if (!initialValue) {
     const savedEv = localStorage.getItem(EV_KEY);
-    initialValue = (savedEv && [...$eventSelect.options].some(o=>o.value===savedEv))
+    initialValue = (savedEv && [...$eventSelect.options].some(o => o.value === savedEv))
       ? savedEv : '__ALL__';
   }
 
@@ -142,10 +142,10 @@ function syncViewButtons(){
 
 /* ===== UIイベント ===== */
 $btnCard.addEventListener('click', () => {
-  viewMode='card'; localStorage.setItem(VIEW_KEY,viewMode); syncViewButtons(); render();
+  viewMode = 'card'; localStorage.setItem(VIEW_KEY, viewMode); syncViewButtons(); render();
 });
 $btnList.addEventListener('click', () => {
-  viewMode='list'; localStorage.setItem(VIEW_KEY,viewMode); syncViewButtons(); render();
+  viewMode = 'list'; localStorage.setItem(VIEW_KEY, viewMode); syncViewButtons(); render();
 });
 $eventSelect.addEventListener('change', () => {
   const val = $eventSelect.value;
@@ -153,9 +153,9 @@ $eventSelect.addEventListener('change', () => {
   updateURLForEvent(eventNameFromValue(val));
   render();
 });
-$q.addEventListener('input', () => { query=$q.value; localStorage.setItem(Q_KEY,query); render(); });
-$sortBy.addEventListener('change', () => { sortMode=$sortBy.value; localStorage.setItem(SORT_KEY,sortMode); render(); });
-$mergeDup?.addEventListener('change', () => { mergeDup=$mergeDup.checked; localStorage.setItem(MERGE_KEY,String(mergeDup)); render(); });
+$q.addEventListener('input', () => { query = $q.value; localStorage.setItem(Q_KEY, query); render(); });
+$sortBy.addEventListener('change', () => { sortMode = $sortBy.value; localStorage.setItem(SORT_KEY, sortMode); render(); });
+$mergeDup?.addEventListener('change', () => { mergeDup = $mergeDup.checked; localStorage.setItem(MERGE_KEY, String(mergeDup)); render(); });
 
 // ★ 購入済み非表示トグル
 $hideDone?.addEventListener('change', () => {
@@ -201,19 +201,19 @@ $mount.addEventListener('click', (e) => {
   }
 });
 
-function reloadDataAndRender(){ all = loadEvents(); render(); }
+function reloadDataAndRender() { all = loadEvents(); render(); }
 
 /* ===== データ組み立て ===== */
-function getSelection(){
+function getSelection() {
   const val = $eventSelect.value;
-  if (val === '__ALL__') return { mode:'ALL' };
+  if (val === '__ALL__') return { mode: 'ALL' };
   const idx = Number(val);
-  return { mode:'SINGLE', event: all[idx] };
+  return { mode: 'SINGLE', event: all[idx] };
 }
 
 // 同名まとめ
-function buildAllMerged(){
-  const keyOf = (name) => (name || '').toString().replace(/\u3000/g,' ').trim().toLowerCase();
+function buildAllMerged() {
+  const keyOf = (name) => (name || '').toString().replace(/\u3000/g, ' ').trim().toLowerCase();
   const map = new Map();
 
   all.forEach(ev => {
@@ -221,27 +221,27 @@ function buildAllMerged(){
       const k = keyOf(c.name);
       if (!k) return;
       const entry = map.get(k) || {
-        key:k, name:c.name || '(無名)', owner:c.owner||'',
-        avatar:c.avatar||'', favorite:Boolean(c.favorite), r18:Boolean(c.r18),
-        tags:new Set(), links:new Set(), appearances: [] // { event, index, island, seat }
+        key: k, name: c.name || '(無名)', owner: c.owner || '',
+        avatar: c.avatar || '', favorite: Boolean(c.favorite), r18: Boolean(c.r18),
+        tags: new Set(), links: new Set(), appearances: [] // { event, index, island, seat }
       };
       if (!entry.avatar && c.avatar) entry.avatar = c.avatar;
       entry.favorite = entry.favorite || !!c.favorite;
       entry.r18 = entry.r18 || !!c.r18;
-      (c.tags||[]).forEach(t=>entry.tags.add(String(t)));
-      (c.links||[]).forEach(u=>entry.links.add(String(u)));
-      entry.appearances.push({ event: ev.event, index: idx, island: c.island||'', seat: c.seat||'' });
+      (c.tags || []).forEach(t => entry.tags.add(String(t)));
+      (c.links || []).forEach(u => entry.links.add(String(u)));
+      entry.appearances.push({ event: ev.event, index: idx, island: c.island || '', seat: c.seat || '' });
       map.set(k, entry);
     });
   });
 
   // ★ hideDone を適用：可視な出現だけ残す
   const res = [];
-  for (const e of map.values()){
+  for (const e of map.values()) {
     const visibleApps = e.appearances.filter(a => !(hideDone && isDone(a.event, a.index)));
     if (visibleApps.length === 0) continue; // 全部済なら非表示
     res.push({
-      type:'merged',
+      type: 'merged',
       name: e.name, owner: e.owner, avatar: e.avatar,
       favorite: e.favorite, r18: e.r18,
       tags: [...e.tags], links: [...e.links],
@@ -252,69 +252,69 @@ function buildAllMerged(){
 }
 
 // ALLフラット
-function buildAllFlat(){
+function buildAllFlat() {
   const rows = [];
   all.forEach(ev => {
     ev.circles.forEach((c, idx) => {
       if (hideDone && isDone(ev.event, idx)) return; // ★非表示
-      rows.push({ type:'flat', event: ev.event, index: idx, ...c });
+      rows.push({ type: 'flat', event: ev.event, index: idx, ...c });
     });
   });
   return rows;
 }
 
-function filterAndSort(rows){
+function filterAndSort(rows) {
   const filtered = rows.filter(c => matchQuery(c, query));
   return sortCircles(filtered, sortMode);
 }
 
-function matchQuery(c, q){
+function matchQuery(c, q) {
   if (!q) return true;
   const parts = [
-    c.name||'', c.owner||'',
-    c.island||'', c.seat||'',
-    ...(Array.isArray(c.tags)?c.tags:[]),
-    ...(Array.isArray(c.links)?c.links:[]),
-    ...(Array.isArray(c.events)?c.events.map(e=>e.event):[]),
-    (c.event||'')
+    c.name || '', c.owner || '',
+    c.island || '', c.seat || '',
+    ...(Array.isArray(c.tags) ? c.tags : []),
+    ...(Array.isArray(c.links) ? c.links : []),
+    ...(Array.isArray(c.events) ? c.events.map(e => e.event) : []),
+    (c.event || '')
   ];
   return parts.join(' ').toLowerCase().includes(q.toLowerCase());
 }
 
-function sortCircles(arr, mode){
+function sortCircles(arr, mode) {
   const a = arr.slice();
   if (mode === 'name') {
-    a.sort((x,y) => (x.name||'').localeCompare(y.name||'', 'ja'));
+    a.sort((x, y) => (x.name || '').localeCompare(y.name || '', 'ja'));
   } else if (mode === 'favorite') {
-    a.sort((x,y) => Number(Boolean(y.favorite)) - Number(Boolean(x.favorite)) || bySpaceThenName(x,y));
+    a.sort((x, y) => Number(Boolean(y.favorite)) - Number(Boolean(x.favorite)) || bySpaceThenName(x, y));
   } else {
     a.sort(bySpaceThenName);
   }
   return a;
 }
-function bySpaceThenName(a,b){
-  const ia = (a.island || (a.events?.[0]?.island)||'').toString();
-  const ib = (b.island || (b.events?.[0]?.island)||'').toString();
+function bySpaceThenName(a, b) {
+  const ia = (a.island || (a.events?.[0]?.island) || '').toString();
+  const ib = (b.island || (b.events?.[0]?.island) || '').toString();
   const ic = ia.localeCompare(ib, 'ja'); if (ic !== 0) return ic;
-  const sa = (a.seat || (a.events?.[0]?.seat)||'').toString();
-  const sb = (b.seat || (b.events?.[0]?.seat)||'').toString();
-  const sc = sa.localeCompare(sb, 'ja', { numeric:true, sensitivity:'base' }); if (sc !== 0) return sc;
-  return (a.name||'').localeCompare((b.name||''), 'ja');
+  const sa = (a.seat || (a.events?.[0]?.seat) || '').toString();
+  const sb = (b.seat || (b.events?.[0]?.seat) || '').toString();
+  const sc = sa.localeCompare(sb, 'ja', { numeric: true, sensitivity: 'base' }); if (sc !== 0) return sc;
+  return (a.name || '').localeCompare((b.name || ''), 'ja');
 }
 
 /* ===== レンダリング ===== */
-function render(){
+function render() {
   const sel = getSelection();
 
   if (sel.mode === 'SINGLE') {
     // 単一イベント：hideDone はここで適用
     const ev = sel.event;
     if (!ev || !ev.circles.length) {
-      $mount.innerHTML = `<div class="card">「${sel.event?.event||'-'}」にサークルがありません。</div>`;
+      $mount.innerHTML = `<div class="card">「${sel.event?.event || '-'}」にサークルがありません。</div>`;
       return;
     }
     const rows = ev.circles
-      .map((c, idx) => ({ ...c, event: ev.event, index: idx, type:'single' }))
+      .map((c, idx) => ({ ...c, event: ev.event, index: idx, type: 'single' }))
       .filter(row => !(hideDone && isDone(row.event, row.index)));
 
     const data = filterAndSort(rows);
@@ -333,51 +333,51 @@ function render(){
   if (viewMode === 'card') renderCards(data, sel); else renderList(data, sel);
 }
 
-function avatarHTML(c){
+function avatarHTML(c) {
   if (c.avatar) return `<div class="avatar"><img src="${c.avatar}" alt=""></div>`;
   return `<div class="avatar"><div class="ph"><i class="fa-regular fa-image"></i></div></div>`;
 }
-function linksHTML(links){
-  if (!Array.isArray(links) || links.length===0) return `<span class="meta">リンクなし</span>`;
-  return links.slice(0,6).map(u => {
+function linksHTML(links) {
+  if (!Array.isArray(links) || links.length === 0) return `<span class="meta">リンクなし</span>`;
+  return links.slice(0, 6).map(u => {
     const cls = iconClassFor(u) + ' fa-fw';
     return `<a href="${u}" target="_blank" rel="noopener noreferrer" title="${u}"><i class="${cls}"></i></a>`;
   }).join('');
 }
-function tagsHTML(tags){
-  if (!Array.isArray(tags) || tags.length===0) return '';
-  return `<div class="tags">${tags.map(t=>`<span class="tag">${escapeHtml(String(t))}</span>`).join('')}</div>`;
+function tagsHTML(tags) {
+  if (!Array.isArray(tags) || tags.length === 0) return '';
+  return `<div class="tags">${tags.map(t => `<span class="tag">${escapeHtml(String(t))}</span>`).join('')}</div>`;
 }
-function flagsHTML(c){
+function flagsHTML(c) {
   const flags = [];
   if (c.favorite) flags.push(`<span class="star" title="推し">★</span>`);
   if (c.r18) flags.push(`<span class="badge r18" title="R18">R18</span>`);
   return flags.join(' ');
 }
-function evChipsHTML(c){
+function evChipsHTML(c) {
   if (!Array.isArray(c.events) || !c.events.length) return '';
-  const chips = c.events.slice(0,6).map(e => {
+  const chips = c.events.slice(0, 6).map(e => {
     const sp = [e.island, e.seat].filter(Boolean).join(' ');
-    return `<span class="evt"><span class="name">${escapeHtml(e.event)}</span>${sp?` <span class="space">${escapeHtml(sp)}</span>`:''}</span>`;
+    return `<span class="evt"><span class="name">${escapeHtml(e.event)}</span>${sp ? ` <span class="space">${escapeHtml(sp)}</span>` : ''}</span>`;
   }).join('');
-  return `<div class="evchips">${chips}${c.events.length>6?` <span class="badge">他${c.events.length-6}</span>`:''}</div>`;
+  return `<div class="evchips">${chips}${c.events.length > 6 ? ` <span class="badge">他${c.events.length - 6}</span>` : ''}</div>`;
 }
 
-function renderCards(items, sel){
+function renderCards(items, sel) {
   const grid = document.createElement('div');
   grid.className = 'grid';
 
   items.forEach(c => {
-    const canEdit = !(sel.mode==='ALL' && mergeDup && c.type==='merged');
+    const canEdit = !(sel.mode === 'ALL' && mergeDup && c.type === 'merged');
     const actions = canEdit
       ? actionButtonsHTML(c.event, c.index)
       : `<span class="help">編集できません</span>`;
 
-    const doneToggle = (c.event!=null && c.index!=null && canEdit)
+    const doneToggle = (c.event != null && c.index != null && canEdit)
       ? doneButtonHTML(c.event, c.index)
       : '';
 
-    const space = (c.island||'') + (c.seat?` ${c.seat}`:'');
+    const space = (c.island || '') + (c.seat ? ` ${c.seat}` : '');
     const evBadges = c.events ? evChipsHTML(c) : '';
 
     const item = document.createElement('div');
@@ -392,7 +392,7 @@ function renderCards(items, sel){
           ${flagsHTML(c)}
         </div>
         <div class="meta">${escapeHtml(c.owner || '')}</div>
-        <div class="meta">${space || (c.event?escapeHtml(c.event):'配置未設定')}</div>
+        <div class="meta">${space || (c.event ? escapeHtml(c.event) : '配置未設定')}</div>
         <div class="links">${linksHTML(c.links)}</div>
         ${tagsHTML(c.tags)}
         ${evBadges}
@@ -409,33 +409,33 @@ function renderCards(items, sel){
   $mount.appendChild(grid);
 }
 
-function renderList(items, sel){
+function renderList(items, sel) {
   const wrap = document.createElement('div');
   wrap.className = 'list';
 
-  const hasEventCol = sel.mode==='ALL' && !mergeDup;
+  const hasEventCol = sel.mode === 'ALL' && !mergeDup;
 
   // ヘッダ：最後の列見出しを「操作」に
   wrap.insertAdjacentHTML('beforeend', `
     <div class="row listrow head">
       <div></div>
       <div>サークル名</div>
-      <div>${hasEventCol?'イベント':'代表者'}</div>
-      <div>${hasEventCol?'代表者':'配置'}</div>
-      <div>${hasEventCol?'配置':'リンク'}</div>
-      <div>${hasEventCol?'リンク':''}</div>
+      <div>${hasEventCol ? 'イベント' : '代表者'}</div>
+      <div>${hasEventCol ? '代表者' : '配置'}</div>
+      <div>${hasEventCol ? '配置' : 'リンク'}</div>
+      <div>${hasEventCol ? 'リンク' : ''}</div>
       <div class="actions-col">操作</div>
     </div>
   `);
 
   items.forEach(c => {
-    const canEdit = !(sel.mode==='ALL' && mergeDup && c.type==='merged');
+    const canEdit = !(sel.mode === 'ALL' && mergeDup && c.type === 'merged');
     const actionsHTML = canEdit ? actionButtonsHTML(c.event, c.index) : '';
-    const doneToggle  = (c.event!=null && c.index!=null && canEdit) ? doneButtonHTML(c.event, c.index) : '';
+    const doneToggle = (c.event != null && c.index != null && canEdit) ? doneButtonHTML(c.event, c.index) : '';
 
-    const space = [c.island,c.seat].filter(Boolean).join(' ') || '—';
+    const space = [c.island, c.seat].filter(Boolean).join(' ') || '—';
 
-    const leftCells = sel.mode==='ALL' && !mergeDup
+    const leftCells = sel.mode === 'ALL' && !mergeDup
       ? `
         <div class="name">
           <strong>
@@ -444,9 +444,9 @@ function renderList(items, sel){
             </button>
           </strong>
           ${flagsHTML(c)}
-          ${c.tags && c.tags.length ? `<span class="badge">${escapeHtml(c.tags[0])}${c.tags.length>1?` 他${c.tags.length-1}`:''}</span>` : ''}
+          ${c.tags && c.tags.length ? `<span class="badge">${escapeHtml(c.tags[0])}${c.tags.length > 1 ? ` 他${c.tags.length - 1}` : ''}</span>` : ''}
         </div>
-        <div class="event">${escapeHtml(c.event||'')}</div>
+        <div class="event">${escapeHtml(c.event || '')}</div>
         <div class="owner">${escapeHtml(c.owner || '')}</div>
         <div class="space">${space}</div>
         <div class="links">${linksHTML(c.links)}</div>
@@ -459,7 +459,7 @@ function renderList(items, sel){
             </button>
           </strong>
           ${flagsHTML(c)}
-          ${c.tags && c.tags.length ? `<span class="badge">${escapeHtml(c.tags[0])}${c.tags.length>1?` 他${c.tags.length-1}`:''}</span>` : ''}
+          ${c.tags && c.tags.length ? `<span class="badge">${escapeHtml(c.tags[0])}${c.tags.length > 1 ? ` 他${c.tags.length - 1}` : ''}</span>` : ''}
         </div>
         <div class="owner">${escapeHtml(c.owner || '')}</div>
         <div class="space">${space}</div>
@@ -484,14 +484,14 @@ function renderList(items, sel){
 }
 
 
-function actionButtonsHTML(eventName, index){
-  if (!eventName || index===undefined) return '';
+function actionButtonsHTML(eventName, index) {
+  if (!eventName || index === undefined) return '';
   return `
     <button class="btn small icon" data-action="edit" data-event="${escapeAttr(eventName)}" data-index="${index}" title="編集"><i class="fa-solid fa-pen"></i></button>
     <button class="btn small icon" data-action="delete" data-event="${escapeAttr(eventName)}" data-index="${index}" title="削除"><i class="fa-solid fa-trash"></i></button>
   `;
 }
-function doneButtonHTML(eventName, index){
+function doneButtonHTML(eventName, index) {
   const done = isDone(eventName, index);
   return done
     ? `<button class="btn small icon" data-action="undo" data-event="${escapeAttr(eventName)}" data-index="${index}" title="購入済みを戻す"><i class="fa-solid fa-rotate-left"></i></button>`
@@ -499,13 +499,13 @@ function doneButtonHTML(eventName, index){
 }
 
 /* ===== ユーティリティ ===== */
-function escapeHtml(s){
+function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, m => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[m]));
 }
-function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
-function isHttpUrl(s){ return /^https?:\/\//i.test(String(s||'').trim()); }
+function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
+function isHttpUrl(s) { return /^https?:\/\//i.test(String(s || '').trim()); }
 
 /* ===== 編集モーダル ===== */
 const $editModal = document.getElementById('editModal');
@@ -524,7 +524,7 @@ const $editAvatarClear = document.getElementById('editAvatarClear');
 const $editAvatarPreview = document.getElementById('editAvatarPreview');
 const $editAvatarUrl = document.getElementById('editAvatarUrl');
 
-function renderAvatarPreview(dataURL){
+function renderAvatarPreview(dataURL) {
   $editAvatarPreview.innerHTML = '';
   if (!dataURL) {
     $editAvatarPreview.innerHTML = '<div class="ph"><i class="fa-regular fa-image"></i></div>';
@@ -535,7 +535,7 @@ function renderAvatarPreview(dataURL){
     $editAvatarPreview.appendChild(img);
   }
 }
-function fileToDataURL(file){
+function fileToDataURL(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
     r.onerror = () => rej(new Error('画像の読み込みに失敗'));
@@ -550,10 +550,10 @@ $editAvatar && $editAvatar.addEventListener('change', async (e) => {
   if (!$editAvatarUrl || !$editAvatarUrl.value.trim()) renderAvatarPreview(dataURL);
   if ($editAvatarClear) $editAvatarClear.checked = false;
 });
-function splitTags(s){ return String(s||'').split(',').map(t=>t.trim()).filter(Boolean); }
-function splitLinks(s){ return String(s||'').split(/\n+/).map(t=>t.trim()).filter(Boolean); }
+function splitTags(s) { return String(s || '').split(',').map(t => t.trim()).filter(Boolean); }
+function splitLinks(s) { return String(s || '').split(/\n+/).map(t => t.trim()).filter(Boolean); }
 
-function openEditModal(ev, index){
+function openEditModal(ev, index) {
   const c = ev?.circles?.[index];
   if (!c) { alert('編集対象が見つかりませんでした'); return; }
 
@@ -613,7 +613,7 @@ function openEditModal(ev, index){
   $editForm.addEventListener('submit', onSubmit);
 }
 window.openEditModal = openEditModal;
-function openEditModalByEventAndIndex(eventName, index){
+function openEditModalByEventAndIndex(eventName, index) {
   const ev = loadEvents().find(e => e.event === eventName);
   if (!ev || !ev.circles || !ev.circles[index]) { alert('編集対象が見つかりませんでした'); return; }
   openEditModal(ev, index);
@@ -628,11 +628,11 @@ const $cmBadges = document.getElementById('cmBadges');
 const $cmLinks = document.getElementById('cmLinks');
 const $cmRows = document.getElementById('cmRows');
 
-function nameKey(s){ return String(s||'').replace(/\u3000/g,' ').trim().toLowerCase(); }
+function nameKey(s) { return String(s || '').replace(/\u3000/g, ' ').trim().toLowerCase(); }
 
-function openCircleModalByName(name){
+function openCircleModalByName(name) {
   const k = nameKey(name);
-  const acc = { name, owner:'', avatar:'', favorite:false, r18:false, links:new Set(), rows:[] };
+  const acc = { name, owner: '', avatar: '', favorite: false, r18: false, links: new Set(), rows: [] };
 
   all.forEach(ev => {
     ev.circles.forEach((c, idx) => {
@@ -642,34 +642,34 @@ function openCircleModalByName(name){
       if (!acc.owner && c.owner) acc.owner = c.owner;
       acc.favorite = acc.favorite || !!c.favorite;
       acc.r18 = acc.r18 || !!c.r18;
-      (c.links||[]).forEach(u => acc.links.add(String(u)));
-      acc.rows.push({ event: ev.event, circle: c.name||'', owner:c.owner||'', island:c.island||'', seat:c.seat||'' });
+      (c.links || []).forEach(u => acc.links.add(String(u)));
+      acc.rows.push({ event: ev.event, circle: c.name || '', owner: c.owner || '', island: c.island || '', seat: c.seat || '' });
     });
   });
 
-  acc.rows.sort((a,b)=> (a.event||'').localeCompare(b.event||'', 'ja'));
+  acc.rows.sort((a, b) => (a.event || '').localeCompare(b.event || '', 'ja'));
   $cmName.textContent = acc.name || '(無名)';
-  $cmBadges.innerHTML = `${acc.favorite?'<span class="star" title="推し">★</span>':''}${acc.r18?'<span class="badge r18" title="R18">R-18</span>':''}`;
+  $cmBadges.innerHTML = `${acc.favorite ? '<span class="star" title="推し">★</span>' : ''}${acc.r18 ? '<span class="badge r18" title="R18">R-18</span>' : ''}`;
   $cmAvatar.innerHTML = acc.avatar ? `<img src="${acc.avatar}" alt="">` : `<div class="ph"><i class="fa-regular fa-image"></i></div>`;
   $cmLinks.innerHTML = acc.links.size
-    ? [...acc.links].slice(0,8).map(u=>`<a href="${u}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u)}"><i class="${iconClassFor(u)} fa-fw"></i></a>`).join('')
+    ? [...acc.links].slice(0, 8).map(u => `<a href="${u}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(u)}"><i class="${iconClassFor(u)} fa-fw"></i></a>`).join('')
     : `<span class="meta">リンクなし</span>`;
-  $cmRows.innerHTML = acc.rows.map(r=>{
+  $cmRows.innerHTML = acc.rows.map(r => {
     const place = [r.island, r.seat].filter(Boolean).join(' ') || '—';
     return `<tr><td>${escapeHtml(r.event)}</td><td>${escapeHtml(r.circle)}</td><td>${escapeHtml(r.owner)}</td><td>${escapeHtml(place)}</td></tr>`;
   }).join('') || `<tr><td colspan="4">参加履歴がありません</td></tr>`;
 
   if (typeof $circleModal.showModal === 'function') $circleModal.showModal();
-  else $circleModal.setAttribute('open','');
+  else $circleModal.setAttribute('open', '');
 }
-$cmClose?.addEventListener('click', ()=> $circleModal.close());
+$cmClose?.addEventListener('click', () => $circleModal.close());
 
 /* ===== 出力／読み込み ===== */
-function onExportJSON(){
-  const payload = { format:'circle-checker', version:1, exportedAt:new Date().toISOString(), events: loadEvents() };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+function onExportJSON() {
+  const payload = { format: 'circle-checker', version: 1, exportedAt: new Date().toISOString(), events: loadEvents() };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
-  const ymd = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const ymd = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   a.href = URL.createObjectURL(blob);
   a.download = `circlechecker_${ymd}.json`;
   document.body.appendChild(a);
@@ -678,20 +678,20 @@ function onExportJSON(){
   URL.revokeObjectURL(a.href);
 }
 
-async function onImportJSON(e){
+async function onImportJSON(e) {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   try {
     const text = await file.text();
     const json = JSON.parse(text);
     const incoming = Array.isArray(json) ? json : (json.events || []);
-    if (!Array.isArray(incoming)) { alert('不正なファイル形式です'); e.target.value=''; return; }
+    if (!Array.isArray(incoming)) { alert('不正なファイル形式です'); e.target.value = ''; return; }
     const replace = confirm('読み込み：全入れ替えで復元しますか？\n（キャンセルでマージ）');
     const result = importEvents(incoming, replace ? 'replace' : 'merge');
     alert(replace ? `復元しました（イベント ${result.replaced} 件）` : `マージしました（追加 ${result.added} / 上書き ${result.updated}）`);
     all = loadEvents();
     render();
-  } catch (err){
+  } catch (err) {
     console.error(err); alert('読み込みに失敗しました');
   } finally { e.target.value = ''; }
 }

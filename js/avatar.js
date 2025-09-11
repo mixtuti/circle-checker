@@ -37,6 +37,6 @@ export function setupAvatar(inputId, previewId) {
 
   return {
     get: () => dataURL,
-    reset: () => { dataURL=''; render(); $input.value=''; }
+    reset: () => { dataURL = ''; render(); $input.value = ''; }
   };
 }

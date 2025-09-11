@@ -6,13 +6,13 @@ export function setupTags(containerId, inputId) {
 
   function escapeHtml(s) {
     return s.replace(/[&<>"']/g, m => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[m]));
   }
 
   function render() {
     [...$box.querySelectorAll('.tag')].forEach(n => n.remove());
-    tags.forEach((t,i) => {
+    tags.forEach((t, i) => {
       const chip = document.createElement('span');
       chip.className = 'tag';
       chip.innerHTML = `<span>${escapeHtml(t)}</span><button type="button" class="x" data-i="${i}" aria-label="削除">&times;</button>`;
@@ -23,7 +23,7 @@ export function setupTags(containerId, inputId) {
   $box.addEventListener('click', (e) => {
     const btn = e.target.closest('.x');
     if (!btn) return;
-    tags.splice(Number(btn.dataset.i),1);
+    tags.splice(Number(btn.dataset.i), 1);
     render();
   });
 
@@ -32,11 +32,11 @@ export function setupTags(containerId, inputId) {
     if (!v) return;
     tags.push(v);
     render();
-    $input.value='';
+    $input.value = '';
   }
 
   $input.addEventListener('keydown', (e) => {
-    if (e.key==='Enter' || e.key===',') {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       addFromInput();
     }
@@ -45,6 +45,6 @@ export function setupTags(containerId, inputId) {
 
   return {
     get: () => tags.slice(),
-    reset: () => { tags = []; render(); $input.value=''; }
+    reset: () => { tags = []; render(); $input.value = ''; }
   };
 }

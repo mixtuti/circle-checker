@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>サークルマスター管理</title>
+  <link rel="stylesheet" href="css/master.css" />
+</head>
+
+<body>
+  <header>
+    <h1>サークルマスター管理</h1>
+    <div class="spacer"></div>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="サークル名・代表者で検索" />
+      <button id="newMasterBtn" class="primary">新規作成</button>
+      <button id="exportBtn">エクスポート</button>
+      <label class="pill" for="importFile" style="cursor:pointer">インポート</label>
+      <input id="importFile" class="file" type="file" accept="application/json">
+    </div>
+  </header>
+
+  <main>
+    <table class="table" id="table">
+      <thead>
+        <tr>
+          <th>アイコン</th>
+          <th>サークル名</th>
+          <th>代表者</th>
+          <th>SNSリンク</th>
+          <th>お気に入り</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">マスターがまだありません。「新規作成」またはインポートしてください。</div>
+
+    <p class="help" style="margin-top:12px">
+      <a href="register.html">→ 新規登録はこちら</a><br>
+      <a href="event.html">→ イベント情報の編集</a>
+    </p>
+  </main>
+
+  <footer>
+    <span class="muted">ローカル保存キー: <code>cc.circleMaster.v1</code></span>
+  </footer>
+
+  <template id="row-tpl">
+    <tr>
+      <td>
+        <img class="avatar" alt="avatar">
+        <div><input class="avatarUrl" type="url" placeholder="画像URLまたはdataURL"></div>
+      </td>
+      <td><input class="name" type="text" placeholder="サークル名"></td>
+      <td><input class="owner" type="text" placeholder="代表者"></td>
+      <td>
+        <div class="links"></div>
+        <button class="addLinkBtn">+ リンクを追加</button>
+      </td>
+      <td style="white-space:nowrap">
+        <label><input class="favorite" type="checkbox"> 推し</label>
+      </td>
+      <td>
+        <div class="row-actions">
+          <button class="saveBtn primary">保存</button>
+          <button class="deleteBtn danger">削除</button>
+        </div>
+        <div class="muted" style="margin-top:6px">保存でマスター更新 / 名前変更も対応</div>
+      </td>
+    </tr>
+  </template>
+
+  <script type="module" src="js/circle-master.js"></script>
+</body>
+
+</html>
