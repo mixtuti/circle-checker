@@ -50,13 +50,13 @@ const localApi = (() => {
   try {
     const mod = await import('./storage.js');
     masterApi = {
-      list: mod.listCircleMasterNames ?? localApi.list,
-      get: mod.getCircleMaster ?? localApi.get,
-      upsert: mod.upsertCircleMaster ?? localApi.upsert,
-      remove: mod.deleteCircleMaster ?? localApi.remove,
-      rename: mod.renameCircleMaster ?? localApi.rename,
-      dump: mod.dumpCircleMasterMap ?? localApi.dump,
-      restoreMerge: mod.restoreCircleMasterMap ?? localApi.restoreMerge,
+      list:         mod.listCircleMasterNames ?? localApi.list,
+      get:          mod.getCircleMaster       ?? localApi.get,
+      upsert:       mod.upsertCircleMaster    ?? localApi.upsert,
+      remove:       mod.deleteCircleMaster    ?? localApi.remove,
+      rename:       mod.renameCircleMaster    ?? localApi.rename,
+      dump:         mod.dumpCircleMasterMap   ?? localApi.dump,
+      restoreMerge: mod.restoreCircleMasterMap?? localApi.restoreMerge,
     };
   } catch (e) {
     console.warn('storage.js を読み込めなかったため、ローカルAPIで動作します。', e);
@@ -68,15 +68,28 @@ const localApi = (() => {
 /** =========================
  *  UI
  *  ========================= */
-const $tbody = document.getElementById('tbody');
-const $empty = document.getElementById('empty');
-const $tpl = document.getElementById('row-tpl');
+const $tbody  = document.getElementById('tbody');
+const $empty  = document.getElementById('empty');
+const $tpl    = document.getElementById('row-tpl');
 const $search = document.getElementById('search');
-const $new = document.getElementById('newMasterBtn');
+const $new    = document.getElementById('newMasterBtn');
 const $export = document.getElementById('exportBtn');
 const $import = document.getElementById('importFile');
 
-let allRows = []; // {tr, originalName, inputs...}
+let allRows = []; // {tr, originalName}
+
+/* ========= リンクを URL 配列に正規化（旧データ互換） ========= */
+function normalizeLinksToUrls(links) {
+  const arr = Array.isArray(links) ? links : [];
+  return arr.map(v => {
+    if (typeof v === 'string') return v.trim();
+    const url = (v?.url || '').trim();
+    const lab = (v?.label || '').trim();
+    if (url) return url;
+    if (/^https?:\/\//i.test(lab)) return lab; // label に URL の旧データ救済
+    return '';
+  }).filter(Boolean);
+}
 
 /** レンダリング */
 function render(filter = '') {
@@ -94,41 +107,41 @@ function render(filter = '') {
     if (!matches) return;
 
     const row = $tpl.content.firstElementChild.cloneNode(true);
-    const img = row.querySelector('.avatar');
-    const avatarUrl = row.querySelector('.avatarUrl');
-    const nameInput = row.querySelector('.name');
+    const img        = row.querySelector('.avatar');
+    const avatarUrl  = row.querySelector('.avatarUrl');
+    const nameInput  = row.querySelector('.name');
     const ownerInput = row.querySelector('.owner');
-    const favInput = row.querySelector('.favorite');
-    const linksBox = row.querySelector('.links');
-    const addLinkBtn = row.querySelector('.addLinkBtn');
-    const saveBtn = row.querySelector('.saveBtn');
-    const delBtn = row.querySelector('.deleteBtn');
+    const favInput   = row.querySelector('.favorite');
+    const linksBox   = row.querySelector('.links');       // 挿入先
+    const addLinkBtn = row.querySelector('.addLinkBtn');  // 追加ボタン
+    const saveBtn    = row.querySelector('.saveBtn');
+    const delBtn     = row.querySelector('.deleteBtn');
 
-    img.src = m.avatar || '';
-    avatarUrl.value = m.avatar || '';
-    nameInput.value = name;
-    ownerInput.value = owner;
-    favInput.checked = !!m.favorite;
+    img.src           = m.avatar || '';
+    avatarUrl.value   = m.avatar || '';
+    nameInput.value   = name;
+    ownerInput.value  = owner;
+    favInput.checked  = !!m.favorite;
 
-    // リンク群
-    const links = Array.isArray(m.links) ? m.links : [];
-    if (!links.length) addLinkRow(linksBox, { label: '', url: '' });
-    links.forEach(it => addLinkRow(linksBox, it));
+    // リンク群（URL配列へ正規化して表示）
+    const urls = normalizeLinksToUrls(m.links);
+    if (!urls.length) addLinkRow(linksBox, '');
+    else urls.forEach(u => addLinkRow(linksBox, u));
 
+    // イベント
     avatarUrl.addEventListener('input', () => { img.src = avatarUrl.value.trim(); });
-
-    addLinkBtn.addEventListener('click', () => addLinkRow(linksBox, { label: '', url: '' }));
+    addLinkBtn.addEventListener('click', () => addLinkRow(linksBox, ''));
 
     saveBtn.addEventListener('click', () => {
-      const newName = nameInput.value.trim();
+      const newName   = nameInput.value.trim();
       if (!newName) { alert('サークル名は必須です'); return; }
 
-      const newOwner = ownerInput.value.trim();
+      const newOwner  = ownerInput.value.trim();
       const newAvatar = avatarUrl.value.trim();
-      const newFav = !!favInput.checked;
-      const newLinks = readLinks(linksBox);
+      const newFav    = !!favInput.checked;
+      const newLinks  = readUrls(linksBox); // URLの配列で保存
 
-      // 名前が変わっていたらリネーム、変わってなければアップサート
+      // 名前変更対応
       if (newName !== name) {
         if (masterApi.list().includes(newName)) {
           const ok = confirm(`「${newName}」は既に存在します。上書き統合しますか？`);
@@ -137,7 +150,6 @@ function render(filter = '') {
         masterApi.rename(name, newName);
       }
       masterApi.upsert(newName, { owner: newOwner, avatar: newAvatar, favorite: newFav, links: newLinks });
-      // 再描画
       render($search.value);
     });
 
@@ -156,22 +168,23 @@ function render(filter = '') {
   $empty.style.display = count ? 'none' : 'block';
 }
 
-function addLinkRow(container, item) {
+/** リンク行の追加（URLのみ） */
+function addLinkRow(container, url = '') {
   const row = document.createElement('div');
   row.className = 'link-row';
   row.innerHTML = `
-    <input type="text" class="link-label" placeholder="https://..." value="${escapeHtml(item.label || '')}">
+    <input type="url" class="link-url" placeholder="https://..." value="${escapeHtml(url)}">
     <button type="button" class="ghost del">削除</button>
   `;
   row.querySelector('.del').addEventListener('click', () => row.remove());
   container.appendChild(row);
 }
 
-function readLinks(container) {
-  return [...container.querySelectorAll('.link-row')].map(row => ({
-    label: row.querySelector('.link-label')?.value?.trim() || '',
-    url: row.querySelector('.link-url')?.value?.trim() || ''
-  })).filter(x => x.label || x.url);
+/** 画面から URL 配列を読み出し */
+function readUrls(container) {
+  return [...container.querySelectorAll('.link-row')].map(row =>
+    row.querySelector('.link-url')?.value?.trim() || ''
+  ).filter(Boolean);
 }
 
 function escapeHtml(s) {
@@ -180,11 +193,9 @@ function escapeHtml(s) {
 
 /** 新規作成 */
 function createNew() {
-  // 空の1件を仮追加して編集
   const tmpName = suggestNewName();
   masterApi.upsert(tmpName, { owner: '', links: [], favorite: false, avatar: '' });
   render($search.value);
-  // 追加直後の行を強調
   const row = allRows.find(r => r.originalName === tmpName)?.tr;
   if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -214,6 +225,14 @@ function importJson(file) {
     try {
       const data = JSON.parse(reader.result);
       if (typeof data !== 'object' || Array.isArray(data)) throw new Error('形式が不正です');
+
+      // 旧データ互換：インポート時にも URL 配列へ正規化してから保存
+      Object.keys(data).forEach(k => {
+        const v = data[k] || {};
+        v.links = normalizeLinksToUrls(v.links);
+        data[k] = v;
+      });
+
       const count = Object.keys(data).length;
       const ok = confirm(`マスター ${count} 件をマージします。既存と同名は上書きされます。よろしいですか？`);
       if (!ok) return;

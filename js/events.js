@@ -28,6 +28,13 @@ const $pvOfficial = document.getElementById('pvOfficial');
 const $pvMap = document.getElementById('pvMap');
 const $pvSNS = document.getElementById('pvSNS');
 
+// --- Google Map / 一覧 用 参照 ---
+const $gmap       = document.getElementById('gmap');
+const $gmapWrap   = document.getElementById('gmapWrap');
+const $gmapEmpty  = document.getElementById('gmapEmpty');
+
+const $eventsListBody = document.getElementById('eventsListBody');
+
 init();
 
 function init() {
@@ -45,6 +52,9 @@ function init() {
 
   // SNS UI
   $addSns.addEventListener('click', () => addSnsRow());
+
+  $venue?.addEventListener('input',  updateMapFromForm);
+  $mapUrl?.addEventListener('input', updateMapFromForm);
 }
 
 function refreshEventSelect(selected) {
@@ -131,6 +141,7 @@ function loadToForm() {
 
   renderPreview({ name: ev.event, meta });
   updateListLink(ev.event);
+  updateMapFromForm();
 }
 
 $metaForm.addEventListener('submit', (e) => {
@@ -145,6 +156,7 @@ $metaForm.addEventListener('submit', (e) => {
   };
   upsertEventMeta(name, meta);
   renderPreview({ name, meta });
+  updateMapFromForm();
   alert('保存しました');
 });
 
@@ -202,4 +214,48 @@ function updateListLink(name) {
   } else {
     a.href = `index.html`;
   }
+}
+
+function escapeHtml(s) {
+  return (s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function updateMapFromForm() {
+  if (!$gmap || !$gmapWrap) return;
+  const venue = $venue?.value.trim()   || '';
+  const murl  = $mapUrl?.value.trim()  || '';
+
+  // mapUrl があればそれを優先。無ければ venue 検索埋め込み
+  let src = '';
+  if (murl)      src = murl;
+  else if (venue)src = `https://www.google.com/maps?q=${encodeURIComponent(venue)}&output=embed`;
+
+  if (src) {
+    if ($gmap.src !== src) $gmap.src = src;
+    $gmapWrap.style.display = 'block';
+    if ($gmapEmpty) $gmapEmpty.style.display = 'none';
+  } else {
+    $gmap.src = '';
+    $gmapWrap.style.display = 'none';
+    if ($gmapEmpty) $gmapEmpty.style.display = 'block';
+  }
+}
+
+function renderEventsList() {
+  if (!$eventsListBody) return;
+  const names = (listEvents?.() || []);
+  $eventsListBody.innerHTML = '';
+
+  names.forEach(name => {
+    const ev   = (getEventByName?.(name)) || {};
+    const meta = ev.meta || {};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(name)}</td>
+      <td>${escapeHtml(meta.date || '')}</td>
+      <td>${escapeHtml(meta.venue || '')}</td>
+      <td><a href="list.html?event=${encodeURIComponent(name)}">開く</a></td>
+    `;
+    $eventsListBody.appendChild(tr);
+  });
 }

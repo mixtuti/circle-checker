@@ -37,21 +37,23 @@ export function setupSns(listId, addBtnId) {
   /**
    * links: ["https://...", ...] または [{url:"https://...", label:"X"}, ...] を許容
    */
+  // setupSns 内
   function set(links = []) {
-    reset();
-    let added = false;
-    try {
-      (links || []).forEach(entry => {
-        const url = typeof entry === 'string'
-          ? entry
-          : (entry && typeof entry === 'object' ? (entry.url || '') : '');
-        if (url) { addRow(url); added = true; }
-      });
-    } catch (e) {
-      console.warn('sns.set で例外:', e);
+    // 文字列URL / {url,label} どちらもOKに正規化
+    const urls = (links || [])
+      .map(e => typeof e === 'string' ? e : (e && e.url) || '')
+      .map(s => (s || '').trim())
+      .filter(Boolean);
+
+    $list.innerHTML = '';      // ← reset() は使わない（空行が残るため）
+
+    if (urls.length === 0) {   // データ無しなら空1行だけ
+      addRow();
+      return;
     }
-    if (!added) addRow();
+    urls.forEach(u => addRow(u));  // 1行目から順に値入りで生成
   }
+
   // === 追加ここまで ===
 
   return {

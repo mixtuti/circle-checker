@@ -9,7 +9,7 @@ applyAutoTheme();
 /* ===== イベント datalist に既存イベント名を反映 ===== */
 const $eventList = document.getElementById('eventList');
 if ($eventList) {
-  listEventNames().forEach(n => {
+  (listEventNames?.() || []).forEach(n => {
     const o = document.createElement('option');
     o.value = n;
     $eventList.appendChild(o);
@@ -17,19 +17,22 @@ if ($eventList) {
 }
 
 /* ===== 各UI 初期化 ===== */
-const tagsUI = setupTags('tags', 'tagInput');  // タグ（複数）
-const snsUI = setupSns('snsList', 'addSns');  // SNS/リンク（複数）
+const tagsUI = setupTags('tags', 'tagInput');   // タグ（複数）
+const snsUI  = setupSns('snsList', 'addSns');   // SNS/リンク（複数）
+// window.snsUI = snsUI; // ← コンソールで一時テストする時だけ有効化
+
 const $circleName = document.getElementById('circleName');
 const $datalist   = document.getElementById('circleMasterList');
+
 /* ===== フラグ：お気に入りがユーザー操作されたかを記録 ===== */
 const $favorite = document.getElementById('favorite');
 $favorite?.addEventListener('change', () => { $favorite.dataset.userTouched = '1'; });
 
 /* ===== アイコン：URL/ファイル/クリア 対応 ===== */
 const $avatarPreview = document.getElementById('avatarPreview');
-const $avatarFile = document.getElementById('avatarFile');
-const $avatarUrl = document.getElementById('avatarUrl');
-const $avatarClear = document.getElementById('avatarClear');
+const $avatarFile    = document.getElementById('avatarFile');
+const $avatarUrl     = document.getElementById('avatarUrl');
+const $avatarClear   = document.getElementById('avatarClear');
 
 function renderAvatarPreview(src) {
   if (!$avatarPreview) return;
@@ -47,7 +50,7 @@ function fileToDataURL(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
     r.onerror = () => rej(new Error('画像の読み込みに失敗'));
-    r.onload = () => res(r.result);
+    r.onload  = () => res(r.result);
     r.readAsDataURL(file);
   });
 }
@@ -60,11 +63,8 @@ $avatarUrl?.addEventListener('input', () => {
     if ($avatarClear) $avatarClear.checked = false;
   } else {
     const f = $avatarFile?.files && $avatarFile.files[0];
-    if (f) {
-      fileToDataURL(f).then(renderAvatarPreview);
-    } else {
-      renderAvatarPreview('');
-    }
+    if (f) fileToDataURL(f).then(renderAvatarPreview);
+    else renderAvatarPreview('');
   }
 });
 
@@ -73,9 +73,7 @@ $avatarFile?.addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   const dataURL = await fileToDataURL(file);
-  if (!$avatarUrl?.value.trim()) {
-    renderAvatarPreview(dataURL);
-  }
+  if (!$avatarUrl?.value.trim()) renderAvatarPreview(dataURL);
   if ($avatarClear) $avatarClear.checked = false;
 });
 
@@ -84,7 +82,7 @@ $avatarClear?.addEventListener('change', () => {
   if ($avatarClear.checked) {
     renderAvatarPreview('');
     if ($avatarFile) $avatarFile.value = '';
-    if ($avatarUrl) $avatarUrl.value = '';
+    if ($avatarUrl)  $avatarUrl.value  = '';
   }
 });
 
@@ -98,38 +96,94 @@ async function gatherAvatarValue() {
   return '';                            // 未設定
 }
 
+/* ===== サークル名 → マスター反映 ===== */
+function applyMasterToForm(name){
+  const m = getCircleMaster?.(name);
+  if (!m) return;
+
+  // 基本項目
+  const $owner = document.getElementById('owner');
+  if ($owner) $owner.value = m.owner || '';
+  if (typeof m.favorite === 'boolean') {
+    const $fav = document.getElementById('favorite');
+    if ($fav) $fav.checked = !!m.favorite;
+  }
+  if (m.avatar) {
+    if ($avatarUrl) $avatarUrl.value = m.avatar;
+    renderAvatarPreview(m.avatar);
+  }
+
+  // SNSリンク（string / {url,label} / labelにURL も吸収して URL配列に）
+  const urls = (Array.isArray(m.links) ? m.links : [])
+    .map(v => {
+      if (typeof v === 'string') return v.trim();
+      const url = (v?.url || '').trim();
+      const lab = (v?.label || '').trim();
+      return url || (/^https?:\/\//i.test(lab) ? lab : '');
+    })
+    .filter(Boolean);
+
+  if (!urls.length) { snsUI.reset(); return; }
+
+  // set() があれば一発で
+  if (typeof snsUI.set === 'function') {
+    snsUI.set(urls);
+    return;
+  }
+
+  // フォールバック：必要数のURL入力を作って埋める（クラス名に依存しない）
+  const listEl = document.getElementById('snsList');
+  const addBtn = document.getElementById('addSns');
+  const inputs = () => Array.from(listEl.querySelectorAll('input[type="url"],input[type=url]'));
+
+  listEl.innerHTML = '';
+  while (inputs().length < Math.max(1, urls.length)) addBtn?.click();
+  inputs().forEach((el, i) => {
+    el.value = urls[i] || '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+// datalist は input で発火することが多いので、input/change 両方を拾う
+['input','change'].forEach(ev => {
+  $circleName?.addEventListener(ev, () => {
+    const name = $circleName.value.trim();
+    if (name) applyMasterToForm(name);
+  });
+});
+
 /* ===== フォーム送信 ===== */
 const $form = document.getElementById('circleForm');
 $form?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const eventName = document.getElementById('event')?.value.trim() || '';
-  const circleName = document.getElementById('circleName')?.value.trim() || '';
-  const owner = document.getElementById('owner')?.value.trim() || '';
-  const island = document.getElementById('island')?.value.trim() || '';
-  const seat = document.getElementById('seat')?.value.trim() || '';
-  const hasR18 = !!document.getElementById('hasR18')?.checked;
-  const favorite = !!document.getElementById('favorite')?.checked;
+  const circleName= document.getElementById('circleName')?.value.trim() || '';
+  const owner     = document.getElementById('owner')?.value.trim() || '';
+  const island    = document.getElementById('island')?.value.trim() || '';
+  const seat      = document.getElementById('seat')?.value.trim() || '';
+  const hasR18    = !!document.getElementById('hasR18')?.checked;
+  const favorite  = !!document.getElementById('favorite')?.checked;
 
   if (!eventName || !circleName) {
     alert('イベント名とサークル名は必須です');
     return;
   }
 
-  const master = getCircleMaster(circleName) || {};
+  const master = getCircleMaster?.(circleName) || {};
 
   // 入力値（優先）を取得
   const avatarCurrent = await gatherAvatarValue();
-  const linksCurrent = snsUI.get();
+  const linksCurrent  = snsUI.get();
 
   // マスターの値で不足分を補完（空欄のみ）
   const avatarFinal = avatarCurrent || master.avatar || '';
-  const ownerFinal = owner || master.owner || '';
-  const linksFinal = (linksCurrent && linksCurrent.length) ? linksCurrent : (master.links || []);
+  const ownerFinal  = owner || master.owner || '';
+  const linksFinal  = (linksCurrent && linksCurrent.length) ? linksCurrent : (master.links || []);
 
   // お気に入りは、ユーザーがチェックを触っていなければマスター値を既定値として採用
   const favoriteTouched = document.getElementById('favorite')?.dataset.userTouched === '1';
-  const favoriteFinal = favoriteTouched ? favorite : (typeof master.favorite === 'boolean' ? master.favorite : favorite);
+  const favoriteFinal   = favoriteTouched ? favorite : (typeof master.favorite === 'boolean' ? master.favorite : favorite);
 
   const circle = {
     name: circleName,
@@ -143,13 +197,14 @@ $form?.addEventListener('submit', async (e) => {
     avatar: avatarFinal
   };
 
+  // イベント側に保存
   upsertCircle(eventName, circle);
 
   // マスターも同時に更新
   upsertCircleMaster(circleName, {
     avatar: circle.avatar,
-    owner: circle.owner,
-    links: circle.links,
+    owner : circle.owner,
+    links : circle.links,
     favorite: circle.favorite
   });
 
@@ -158,98 +213,26 @@ $form?.addEventListener('submit', async (e) => {
   tagsUI.reset();
   snsUI.reset();
   renderAvatarPreview('');
-  if ($avatarFile) $avatarFile.value = '';
-  if ($avatarUrl) $avatarUrl.value = '';
+  if ($avatarFile)  $avatarFile.value = '';
+  if ($avatarUrl)   $avatarUrl.value  = '';
   if ($avatarClear) $avatarClear.checked = false;
 
   alert('登録しました！');
 });
 
+/* ===== マスター名の datalist を初期化 ===== */
 document.addEventListener('DOMContentLoaded', () => {
-
-  // ページロード時にマスター一覧を反映
-  const names = listCircleMasterNames();
-  names.forEach(n => {
-    const opt = document.createElement('option');
-    opt.value = n;
-    $datalist.appendChild(opt);
-  });
-
-  // サークル名を選んだら自動でマスター反映
-  $circleName.addEventListener('change', () => {
-    const name = $circleName.value.trim();
-    if (!name) return;
-    const m = getCircleMaster(name);
-    if (!m) return; // 新規作成なら補完しない
-
-    // マスターから自動入力
-    if (m.owner) document.getElementById('owner').value = m.owner;
-    if (m.links?.length) {
-      snsUI.reset();
-      m.links.forEach(item => snsUI.add(item.label || '', item.url || ''));
+  try {
+    const names = listCircleMasterNames?.() || [];
+    if ($datalist) {
+      $datalist.innerHTML = '';
+      names.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        $datalist.appendChild(opt);
+      });
     }
-    if (typeof m.favorite === 'boolean') {
-      document.getElementById('favorite').checked = m.favorite;
-    }
-    if (m.avatar) {
-      $avatarUrl.value = m.avatar;
-      renderAvatarPreview(m.avatar);
-    }
-  });
-});
-
-function applyMasterToForm(name){
-  const m = getCircleMaster(name);
-  if (!m) return;
-
-  // 基本項目
-  if (m.owner) document.getElementById('owner').value = m.owner;
-  if (typeof m.favorite === 'boolean') {
-    document.getElementById('favorite').checked = m.favorite;
+  } catch (e) {
+    console.warn('マスター一覧の取得に失敗:', e);
   }
-  if (m.avatar) {
-    $avatarUrl.value = m.avatar;
-    renderAvatarPreview(m.avatar);
-  }
-
-  // SNSリンク（string型/obj型どちらでもOKに正規化）
-  const urls = (Array.isArray(m.links) ? m.links : [])
-    .map(v => typeof v === 'string' ? v : (v && v.url) || '')
-    .filter(Boolean);
-
-  if (!urls.length) { snsUI.reset(); return; }
-
-  // set() があれば一発で
-  if (typeof snsUI.set === 'function') {
-    snsUI.set(urls);
-    return;
-  }
-
-  // フォールバック：reset() が作る「空の1行」を先頭URLで上書き、以降は追加
-  snsUI.reset();
-  const $list  = document.getElementById('snsList');
-  const $add   = document.getElementById('addSns');
-  const rows   = () => Array.from($list.querySelectorAll('.sns-item'));
-  const setRow = (row, url) => {
-    const input = row?.querySelector('input[type="url"]');
-    if (input) {
-      input.value = url;
-      // アイコン等の既存inputハンドラも発火
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  };
-
-  setRow(rows()[0], urls[0]);           // ← 先頭行を埋める
-  for (let i = 1; i < urls.length; i++) {
-    $add?.click();                      // 行を増やす
-    setRow(rows().slice(-1)[0], urls[i]);
-  }
-}
-
-// datalistは input で発火することが多いので両方拾う
-['input','change'].forEach(ev => {
-  $circleName.addEventListener(ev, () => {
-    const name = $circleName.value.trim();
-    if (name) applyMasterToForm(name);
-  });
 });

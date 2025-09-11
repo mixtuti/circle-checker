@@ -68,6 +68,17 @@
         </div>
       </div>
 
+      <section class="card" id="mapSection">
+        <h2>Google マップ</h2>
+        <div id="gmapWrap" style="display:none">
+          <iframe id="gmap" loading="lazy"
+                  style="width:50%;height:640px;border:0"
+                  allowfullscreen
+                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <p id="gmapEmpty" class="help">開催場所（会場名や住所）を入力すると地図が表示されます。</p>
+      </section>
+
       <label>SNS（複数可）</label>
       <div id="snsList" class="sns-list" aria-live="polite"></div>
       <button type="button" class="btn" id="addSns"><i class="fa-solid fa-plus"></i> 行を追加</button>

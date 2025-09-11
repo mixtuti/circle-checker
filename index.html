@@ -163,29 +163,41 @@
       </div>
 
       <div class="cm-tabs">
-        <button class="btn small active" disabled>
+        <button id="btnHistory" class="btn small" role="tab" aria-selected="true">
           <i class="fa-regular fa-clock"></i> 参加履歴
         </button>
-        <!-- タイムラインなど -->
+        <button id="btnTimeline" class="btn small" role="tab" aria-selected="false">
+          <i class="fa-brands fa-x-twitter"></i> タイムライン
+        </button>
       </div>
 
       <div class="cm-body">
-        <table class="cm-table">
-          <thead>
-            <tr>
-              <th>イベント</th>
-              <th>サークル名</th>
-              <th>代表者</th>
-              <th>配置</th>
-            </tr>
-          </thead>
-          <tbody id="cmRows"></tbody>
-        </table>
-      </div>
+  <!-- 履歴パネル（追加） -->
+  <div id="cmHistoryPanel">
+    <table class="cm-table">
+      <thead>
+        <tr>
+          <th>イベント</th><th>サークル名</th><th>代表者</th><th>配置</th>
+        </tr>
+      </thead>
+      <tbody id="cmRows"></tbody>
+    </table>
+  </div>
+
+  <!-- 既存: タイムラインパネル -->
+  <div id="cmTimelinePanel" hidden>
+    <div id="cmTimeline" class="cm-timeline"></div>
+    <p class="help" id="cmTimelineHelp" style="margin-top:8px">
+      X(Twitter) のツイートURLまたはプロフィールURLがリンクに含まれる場合、ここに埋め込み表示します。
+    </p>
+  </div>
+</div>
     </div>
   </dialog>
 
   <script type="module" src="js/list.js"></script>
+  <script type="module" src="js/list-master.js"></script>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body>
 
 </html>

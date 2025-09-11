@@ -1,3 +1,4 @@
+// js/list.js
 import {
   loadEvents, updateCircleByIndex, deleteCircleByIndex, importEvents
 } from './storage.js';
@@ -14,7 +15,7 @@ const $q = document.getElementById('q');
 const $sortBy = document.getElementById('sortBy');
 const $mergeDup = document.getElementById('mergeDup');
 
-// ★ 追加：購入済み非表示トグル
+// 購入済み非表示／全解除
 const $hideDone = document.getElementById('hideDone');
 const $clearDone = document.getElementById('clearDone');
 
@@ -46,9 +47,7 @@ function loadDoneMap() {
   try { return JSON.parse(localStorage.getItem(DONE_KEY)) || {}; }
   catch { return {}; }
 }
-function saveDoneMap(map) {
-  localStorage.setItem(DONE_KEY, JSON.stringify(map));
-}
+function saveDoneMap(map) { localStorage.setItem(DONE_KEY, JSON.stringify(map)); }
 function isDone(eventName, index) {
   const map = loadDoneMap();
   const arr = map[eventName] || [];
@@ -68,9 +67,7 @@ function undoDone(eventName, index) {
   map[eventName] = [...arr];
   saveDoneMap(map);
 }
-function clearDoneAll() {
-  saveDoneMap({});
-}
+function clearDoneAll() { saveDoneMap({}); }
 
 /* ===== URLユーティリティ ===== */
 function eventNameFromValue(val) {
@@ -157,14 +154,14 @@ $q.addEventListener('input', () => { query = $q.value; localStorage.setItem(Q_KE
 $sortBy.addEventListener('change', () => { sortMode = $sortBy.value; localStorage.setItem(SORT_KEY, sortMode); render(); });
 $mergeDup?.addEventListener('change', () => { mergeDup = $mergeDup.checked; localStorage.setItem(MERGE_KEY, String(mergeDup)); render(); });
 
-// ★ 購入済み非表示トグル
+// 購入済み非表示トグル
 $hideDone?.addEventListener('change', () => {
   hideDone = $hideDone.checked;
   localStorage.setItem(HIDE_FLG, String(hideDone));
   render();
 });
 
-// ★ 完了フラグ 全解除（任意）
+// 完了フラグ 全解除
 $clearDone?.addEventListener('click', () => {
   if (confirm('全イベントの完了フラグを解除しますか？')) {
     clearDoneAll();
@@ -235,7 +232,7 @@ function buildAllMerged() {
     });
   });
 
-  // ★ hideDone を適用：可視な出現だけ残す
+  // hideDone を適用：可視な出現だけ残す
   const res = [];
   for (const e of map.values()) {
     const visibleApps = e.appearances.filter(a => !(hideDone && isDone(a.event, a.index)));
@@ -256,7 +253,7 @@ function buildAllFlat() {
   const rows = [];
   all.forEach(ev => {
     ev.circles.forEach((c, idx) => {
-      if (hideDone && isDone(ev.event, idx)) return; // ★非表示
+      if (hideDone && isDone(ev.event, idx)) return; // 非表示
       rows.push({ type: 'flat', event: ev.event, index: idx, ...c });
     });
   });
@@ -307,7 +304,6 @@ function render() {
   const sel = getSelection();
 
   if (sel.mode === 'SINGLE') {
-    // 単一イベント：hideDone はここで適用
     const ev = sel.event;
     if (!ev || !ev.circles.length) {
       $mount.innerHTML = `<div class="card">「${sel.event?.event || '-'}」にサークルがありません。</div>`;
@@ -369,14 +365,8 @@ function renderCards(items, sel) {
 
   items.forEach(c => {
     const canEdit = !(sel.mode === 'ALL' && mergeDup && c.type === 'merged');
-    const actions = canEdit
-      ? actionButtonsHTML(c.event, c.index)
-      : `<span class="help">編集できません</span>`;
-
-    const doneToggle = (c.event != null && c.index != null && canEdit)
-      ? doneButtonHTML(c.event, c.index)
-      : '';
-
+    const actions = canEdit ? actionButtonsHTML(c.event, c.index) : `<span class="help">編集できません</span>`;
+    const doneToggle = (c.event != null && c.index != null && canEdit) ? doneButtonHTML(c.event, c.index) : '';
     const space = (c.island || '') + (c.seat ? ` ${c.seat}` : '');
     const evBadges = c.events ? evChipsHTML(c) : '';
 
@@ -415,7 +405,6 @@ function renderList(items, sel) {
 
   const hasEventCol = sel.mode === 'ALL' && !mergeDup;
 
-  // ヘッダ：最後の列見出しを「操作」に
   wrap.insertAdjacentHTML('beforeend', `
     <div class="row listrow head">
       <div></div>
@@ -432,7 +421,6 @@ function renderList(items, sel) {
     const canEdit = !(sel.mode === 'ALL' && mergeDup && c.type === 'merged');
     const actionsHTML = canEdit ? actionButtonsHTML(c.event, c.index) : '';
     const doneToggle = (c.event != null && c.index != null && canEdit) ? doneButtonHTML(c.event, c.index) : '';
-
     const space = [c.island, c.seat].filter(Boolean).join(' ') || '—';
 
     const leftCells = sel.mode === 'ALL' && !mergeDup
@@ -482,7 +470,6 @@ function renderList(items, sel) {
   $mount.innerHTML = '';
   $mount.appendChild(wrap);
 }
-
 
 function actionButtonsHTML(eventName, index) {
   if (!eventName || index === undefined) return '';
@@ -637,7 +624,7 @@ function openCircleModalByName(name) {
   all.forEach(ev => {
     ev.circles.forEach((c, idx) => {
       if (nameKey(c.name) !== k) return;
-      // 詳細モーダルは「済」に関係なく全部の履歴を見せる（使い勝手重視）
+      // 詳細モーダルは「済」に関係なく全部の履歴を見せる
       if (!acc.avatar && c.avatar) acc.avatar = c.avatar;
       if (!acc.owner && c.owner) acc.owner = c.owner;
       acc.favorite = acc.favorite || !!c.favorite;
@@ -658,6 +645,12 @@ function openCircleModalByName(name) {
     const place = [r.island, r.seat].filter(Boolean).join(' ') || '—';
     return `<tr><td>${escapeHtml(r.event)}</td><td>${escapeHtml(r.circle)}</td><td>${escapeHtml(r.owner)}</td><td>${escapeHtml(place)}</td></tr>`;
   }).join('') || `<tr><td colspan="4">参加履歴がありません</td></tr>`;
+
+  // タイムライン初期化＆描画
+  window.__CURRENT_CIRCLE__ = { links: [...acc.links] };
+  TL_CACHE_KEY = null; // 切替時再描画用
+  setupTimelineTabs(); // タブのイベント紐付け
+  // 既定は履歴タブ表示。タイムラインは切り替え時に初回描画
 
   if (typeof $circleModal.showModal === 'function') $circleModal.showModal();
   else $circleModal.setAttribute('open', '');
@@ -694,4 +687,126 @@ async function onImportJSON(e) {
   } catch (err) {
     console.error(err); alert('読み込みに失敗しました');
   } finally { e.target.value = ''; }
+}
+
+/* =========================
+ *  X(Twitter) タイムライン埋め込み
+ * ========================= */
+
+// 1) widgets.js を一度だけ読む（429/重複ロード対策）
+let TW_LOADED = false;
+function ensureTwitterWidgets(rootEl) {
+  if (window.twttr?.widgets) {
+    window.twttr.widgets.load(rootEl || undefined);
+    return;
+  }
+  if (TW_LOADED) return; // 二重ロード防止
+  TW_LOADED = true;
+  const s = document.createElement('script');
+  s.id = 'tw-wjs';
+  s.async = true;
+  s.src = 'https://platform.twitter.com/widgets.js';
+  s.charset = 'utf-8';
+  s.onload = () => window.twttr?.widgets?.load(rootEl || undefined);
+  document.head.appendChild(s);
+}
+
+// 2) links から埋め込み対象を抽出（ツイート優先、無ければプロフィール）
+function pickXTarget(links = []) {
+  const arr = (Array.isArray(links) ? links : [])
+    .map(v => String(v || '').trim().replace(/^https?:\/\/mobile\./i, 'https://'))
+    .filter(Boolean);
+
+  // ツイート（優先）
+  const t = arr.find(u => /^(?:https?:\/\/)?(?:twitter\.com|x\.com)\/[^\/]+\/(?:status|statuses|i\/web\/status)\/\d+/i.test(u));
+  if (t) return { type: 'tweet', url: t };
+
+  // プロフィール（@user）
+  for (const u of arr) {
+    const m = u.match(/^(?:https?:\/\/)?(?:twitter\.com|x\.com)\/([A-Za-z0-9_]{1,15})\/?$/i);
+    if (m) return { type: 'profile', user: m[1] };
+  }
+  return null;
+}
+
+// 3) コンテナへ描画（同一内容の二重描画はスキップ）
+let TL_CACHE_KEY = null;
+function renderTimelineForCircle(circle) {
+  const $wrap = document.getElementById('cmTimeline');
+  const $help = document.getElementById('cmTimelineHelp');
+  if (!$wrap) return;
+
+  const links = Array.isArray(circle?.links) ? circle.links : [];
+  const key = JSON.stringify(links);
+  if (TL_CACHE_KEY === key) return; // 既に描画済み
+
+  $wrap.innerHTML = '';
+  $help?.removeAttribute('hidden');
+
+  const target = pickXTarget(links);
+  if (!target) { ensureTwitterWidgets($wrap); TL_CACHE_KEY = key; return; }
+
+  if (target.type === 'tweet') {
+    // ツイート埋め込み（blockquote）
+    $wrap.innerHTML = `<blockquote class="twitter-tweet"><a href="${target.url}" rel="noopener" target="_blank">${target.url}</a></blockquote>`;
+  } else {
+    // プロフィール埋め込み（あなたが書いた形と同等）
+    const user = target.user;
+    $wrap.innerHTML = `
+      <a class="twitter-timeline"
+         data-height="500"
+         data-width="95%"
+         data-theme="light"
+         data-chrome="noheader nofooter noborders"
+         data-dnt="true"
+         href="https://twitter.com/${user}">
+        Tweets by ${user}
+      </a>`;
+  }
+
+  ensureTwitterWidgets($wrap);
+  $help?.setAttribute('hidden', 'hidden');
+  TL_CACHE_KEY = key;
+}
+
+// 4) タブ切替（タイムラインは初回表示時だけ描画）
+let TABS_WIRED = false;
+function setupTimelineTabs() {
+  const $btnHistory  = document.getElementById('btnHistory');
+  const $btnTimeline = document.getElementById('btnTimeline');
+  const $pHistory    = document.getElementById('cmHistoryPanel');
+  const $pTimeline   = document.getElementById('cmTimelinePanel');
+
+  // 必須DOMが無ければ何もしない（古いHTML互換）
+  if (!$btnHistory || !$btnTimeline || !$pHistory || !$pTimeline) return;
+
+  // 重複バインド防止：一度だけ
+  if (TABS_WIRED) {
+    // 既定状態に戻す（履歴を表示）
+    select('hist');
+    return;
+  }
+  TABS_WIRED = true;
+
+  function select(which) {
+    const isTL = (which === 'tl');
+    // ボタン見た目
+    $btnHistory.classList.toggle('active', !isTL);
+    $btnHistory.setAttribute('aria-selected', String(!isTL));
+    $btnTimeline.classList.toggle('active', isTL);
+    $btnTimeline.setAttribute('aria-selected', String(isTL));
+    // パネル表示
+    $pHistory.hidden  = isTL;
+    $pTimeline.hidden = !isTL;
+    // タイムライン初回描画
+    if (isTL && window.__CURRENT_CIRCLE__) {
+      renderTimelineForCircle(window.__CURRENT_CIRCLE__);
+    }
+  }
+
+  $btnHistory.addEventListener('click', () => select('hist'));
+  $btnTimeline.addEventListener('click', () => select('tl'));
+
+  // 初期は履歴タブ
+  select('hist');
 }
